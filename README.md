@@ -16,6 +16,13 @@ Created by Creta Park (https://creft.me/cretapark)
 
 ---
 
+## Demonstration
+
+If you curious what it looks like, take tour this video!  
+[![Video Label](http://img.youtube.com/vi/YfCC8id8ePQ/0.jpg)](https://youtu.be/YfCC8id8ePQ)
+
+---
+
 # Table of content
  1. [Preparation](#1-Preparation)
  2. [How to use](#2-How-to-use)  
