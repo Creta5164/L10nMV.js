@@ -2,6 +2,8 @@
   <img alt="L10nMV.js" width="480" src="./og-image.png"/>
 </p>
 
+### [Download plugin](https://github.com/Creta5164/L10nMV.js/releases)
+
 This plugin provides localization feature to RPG Maker MV.  
 Created by Creta Park (https://creft.me/cretapark)  
 <a href="https://www.buymeacoffee.com/CretaPark" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" width="120" height="26"></a>
