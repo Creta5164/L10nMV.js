@@ -35,6 +35,7 @@ If you curious what it looks like, take tour this video!
    2.2. [Replace images, sounds](#22-Replace-images-sounds)  
    2.3. [Apply to extra plugins](#23-Apply-to-extra-plugins)  
  3. [Plugin options](#3-Plugin-options)
+ 4. [Third-party library/sources notice](#4-Third-party-librarysources-notice)
 
 # [1.](#Table-of-content) Preparation
 Create `lang` directory in your MV project.
