@@ -135,9 +135,9 @@ Plugins that you want to localize them should be added to plugin whitelist of th
 > `L10nMV` doesn't apply replacing every plugins parameters.  
 > You must add whitelist plugin's name into here.
 
-# 4. Third-party library/sources notice
+# [4.](#Table-of-content) Third-party library/sources notice
 
-## [deep-merge.js](https://gist.github.com/ahtcx/0cd94e62691f539160b32ecda18af3d6)
+- [deep-merge.js](https://gist.github.com/ahtcx/0cd94e62691f539160b32ecda18af3d6)
 
 ---
 
