@@ -8,6 +8,8 @@ This plugin provides localization feature to RPG Maker MV.
 Created by Creta Park (https://creft.me/cretapark)  
 <a href="https://www.buymeacoffee.com/CretaPark" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" width="120" height="26"></a>
 
+This plugin is free for use, just leave my name in your game's credits!
+
 ---
 
 ## Update from old version guide
