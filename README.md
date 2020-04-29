@@ -17,17 +17,17 @@ Created by Creta Park (https://creft.me/cretapark)
 ---
 
 # Table of content
- 1. Preparation
- 2. How to use  
-   2.1. Generate template language pack  
-   2.2. Replace images, sounds  
-   2.3. Apply to extra plugins  
- 3. Plugin options
+ 1. [Preparation](#1-Preparation)
+ 2. [How to use](#2-How-to-use)  
+   2.1. [Generate template language pack](#21-Generate-template-language-pack)  
+   2.2. [Replace images, sounds](#22-Replace-images-sounds)  
+   2.3. [Apply to extra plugins](#23-Apply-to-extra-plugins)  
+ 3. [Plugin options](#3-Plugin-options)
 
-# 1. Preparation
+# [1.](#Table-of-content) Preparation
 Create `lang` directory in your MV project.
 
-# 2. How to use 
+# [2.](#Table-of-content) How to use 
 Basically, `L10nMV` automatically links localized text from `lang` directory files to game.
 If player uses default-language value then `L10nMV` uses default resources in your game.
 
@@ -53,12 +53,12 @@ It's should be like this :
     /index.html
 ```
 
-## 2.1. Generate template language pack
+## [2.1.](#Table-of-content) Generate template language pack
 Template language pack is that text scripts from your project.  
 You can make that using by `L10nMVEditor.js` plugin.  
 Just follow instruction of plugin then you can localize every text from your project.
 
-## 2.2. Replace images, sounds
+## [2.2.](#Table-of-content) Replace images, sounds
 Replacing image and sound is easy to do.  
 Create the same folder in the language pack folder as the project's resource folder.
 
@@ -95,7 +95,7 @@ If you put a resource with the name of the resource you want to replace into thi
 
 \* Note that replacing audio is great for dubbed game scenario.
 
-## 2.3. Apply to extra plugins
+## [2.3.](#Table-of-content) Apply to extra plugins
 
 **[ IMPORTANT ]** If you want to use localization plugins feature, you must put this plugin at top of plugin list.
 
@@ -103,7 +103,7 @@ Plugins that you want to localize them should be added to plugin whitelist of th
 
 `L10nMV` take replace values only whitelisted plugin.
 
-# 3. Plugin options
+# [3.](#Table-of-content) Plugin options
 
 ### Default language
 > Default language you've written in your project.
