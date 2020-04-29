@@ -219,8 +219,6 @@ L10nMV.Initialize = function(isReload) {
         L10nMV.WhitelistedPlugins = null;
     }
     
-    //TODO : 설정에서 값 가져오기
-    
     if (!(L10nMV.ProjectLanguage in L10nMV.ISO639_1Names)) {
         
         throw new Error(
@@ -275,7 +273,6 @@ L10nMV.CheckPluginFeature = function() {
     
     if (hashLocation === -1) {
         
-        console.warn("what?");
         console.warn(pluginFeatureDisabledMessage);
         return false;
     }
