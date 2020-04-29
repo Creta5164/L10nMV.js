@@ -27,6 +27,9 @@
  * |    i.e. : ko, en, jp, ca, ru...                                  |
  * | 7. Open the files in the folder with a text editor and edit the  |
  * |    text according to localize them what do you want.             |
+ * | 8. If you want your game allow translate from unofficial,        |
+ * |    you leave exported language pack in your public release build |
+ * |    for make help them translate easy way your game.              |
  * |                                                                  |
  * | Note. If you need make font atlas (image based font set),        |
  * |       Open developer console as same step 3, and type            |
