@@ -8,8 +8,8 @@ Created by Creta Park (https://creft.me/cretapark)
 ---
 
 ## Update from old version guide
-1. Double-click L10nMV in plugin management menu
-2. Change to other plugin and restore it to L10nMV.  
+1. Double-click `L10nMV` in plugin management menu
+2. Change to other plugin and restore it to `L10nMV`.  
    (Doesn't need re-writting plugin parameters!)
 3. Click 'OK' to apply and save your project.
 4. Run your game and check developer console.
@@ -18,10 +18,10 @@ Created by Creta Park (https://creft.me/cretapark)
 
 # Table of content
  1. Preparation
- 2. How to use
-   2.1. Generate template language pack
-   2.2. Replace images, sounds
-   2.3. Apply to extra plugins
+ 2. How to use  
+   2.1. Generate template language pack  
+   2.2. Replace images, sounds  
+   2.3. Apply to extra plugins  
  3. Plugin options
 
 # 1. Preparation
@@ -31,9 +31,9 @@ Create `lang` directory in your MV project.
 Basically, `L10nMV` automatically links localized text from `lang` directory files to game.
 If player uses default-language value then `L10nMV` uses default resources in your game.
 
-If you want to support other languages must add language pack directory in `lang` directory.
-language pack directory name must be ISO 639-1 code.
-(i.e. en, ko, ja, es, ru...)
+If you want to support other languages must add language pack directory in `lang` directory.  
+Language pack directory name must be ISO 639-1 code.  
+(i.e. `en`, `ko`, `ja`, `es`, `ru`...)
 
 It's should be like this :
 
@@ -54,12 +54,12 @@ It's should be like this :
 ```
 
 ## 2.1. Generate template language pack
-Template language pack is that text scripts from your project.
-You can make that using by L10nMVEditor.js plugin.
+Template language pack is that text scripts from your project.  
+You can make that using by `L10nMVEditor.js` plugin.  
 Just follow instruction of plugin then you can localize every text from your project.
 
 ## 2.2. Replace images, sounds
-Replacing image and sound is easy to do.
+Replacing image and sound is easy to do.  
 Create the same folder in the language pack folder as the project's resource folder.
 
 For example, if you want to replace bgm, se, and some picture...
@@ -143,10 +143,11 @@ Step to exporting language pack template :
 5. When it's done, `lang/exported` directory is created in your
    project. This is everything of your project's text data.
 6. Change `exported` directory to localization target country
-   code. (ISO 639-1)
-   i.e. : ko, en, jp, ca, ru...
+   code. (ISO 639-1)  
+   *i.e. : `ko`, `en`, `jp`, `ca`, `ru`...*
 7. Open the files in the folder with a text editor and edit the
    text according to localize them what do you want.
+8. If you want your game allow translate from unofficial, you leave exported language pack in your public release build for make help them translate easy way your game.
 
 Note. If you need make font atlas (image based font set), Open developer console as same step 3, and type `L10nMVEditor.CreateAllUsedGlyphFromPack("iso682-1 code")`.  
 Then L10nMVEditor generates all text of language pack.
