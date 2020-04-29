@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="L10nMV.js" width="480" src="./og-image.png"/>
+  <img alt="L10nMV.js" width="640" src="./og-image.png"/>
 </p>
 
 ### [Download plugin](https://github.com/Creta5164/L10nMV.js/releases)
