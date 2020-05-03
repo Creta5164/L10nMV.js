@@ -12,6 +12,7 @@
  * | This plugin provides localization feature to RPG Maker MV.       |
  * | Created by Creta Park (https://creft.me/cretapark)               |
  * | License : MIT                                                    |
+ * | GitHub page : https://github.com/Creta5164/L10nMV.js             |
  * |                                                                  |
  * | - Update from old version guide -------------------------------- |
  * | 1. Double-click L10nMV in plugin management menu                 |
