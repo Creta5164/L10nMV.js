@@ -762,12 +762,21 @@ Scene_Title.prototype.createCommandWindow = function() {
         }, this);
         
         var message = L10nMV.GetRestartMessage(L10nMV.ChangedLanguage);
-        var width = this._requireRestartMessage.contents.getTotalWidth(message);
+        var width = this._requireRestartMessage.contents.measureTextWidth(message);
         
         if (width > this._requireRestartMessage.width) {
             
             var split = (message.length / 3) * 2;
             split = message.indexOf(' ', split);
+            
+            if (split === -1) {
+                
+                split = message.lastIndexOf(' ');
+                
+                //last fallback
+                if (split === -1)
+                    split = (message.length / 3) * 2;
+            }
             
             var firstLine  = message.substring(0, split) + '-';
             var secondLine = message.substring(split + 1);
@@ -808,13 +817,6 @@ Scene_Base.prototype.terminate = function() {
     //L10nMV.SceneBase_terminate.call(this);
 };
 
-L10nMV.Scene_Options_create = Scene_Options.prototype.create;
-Scene_Options.prototype.create = function() {
-    
-    L10nMV.Scene_Options_create.call(this);
-    L10nMV.ChangedLanguage = L10nMV.LocalLanguage;
-};
-
 L10nMV.Scene_Options_terminate = Scene_Options.prototype.terminate;
 Scene_Options.prototype.terminate = function() {
     
@@ -822,7 +824,6 @@ Scene_Options.prototype.terminate = function() {
     
     if (L10nMV.LocalLanguage !== L10nMV.ChangedLanguage)
         L10nMV.RequireRestart = true;
-        //window.location.reload();
 };
 
 L10nMV.SceneBase_terminate = Scene_Base.prototype.terminate;
@@ -849,8 +850,10 @@ Window_Options.prototype.makeCommandList = function() {
     
     L10nMV.Window_Options_makeCommandList.call(this);
     
+    L10nMV.ChangedLanguage = L10nMV.LocalLanguage;
+    
     this.addCommand(
-        L10nMV.GetOptionText(L10nMV.LocalLanguage),
+        L10nMV.GetOptionText(L10nMV.ChangedLanguage),
         'L10nMV.LocalLanguage',
         L10nMV.LastScene === Scene_Title
     );
