@@ -312,7 +312,6 @@ L10nMV.LoadDatabase = function() {
     
     var testMode = DataManager.isBattleTest() || DataManager.isEventTest();
     var prefix = testMode ? "Test_" : "";
-    var isDefault = L10nMV.IsProjectLanguage;
     
     var name, src;
     
@@ -322,7 +321,7 @@ L10nMV.LoadDatabase = function() {
             
             name = DataManager._databaseFiles[i].name;
             src  = DataManager._databaseFiles[i].src;
-            L10nMV.LoadDataFile(name, prefix + src, isDefault);
+            L10nMV.LoadDataFile(name, prefix + src);
         }
         
     } else {
@@ -341,9 +340,7 @@ L10nMV.LoadDatabase = function() {
     }
 };
 
-L10nMV.LoadDataFile = function(name, src, isDefault) {
-    
-    isDefault = isDefault || false;
+L10nMV.LoadDataFile = function(name, src) {
     
     var xhr = new XMLHttpRequest();
     var url = 'data/' + src;
@@ -358,7 +355,7 @@ L10nMV.LoadDataFile = function(name, src, isDefault) {
             window[name] = JSON.parse(xhr.responseText);
             DataManager.onLoad(window[name]);
             
-            if (!isDefault)
+            if (!L10nMV.IsProjectLanguage)
                 L10nMV.LoadL10nDataFile(name, src);
         }
     };
