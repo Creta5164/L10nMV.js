@@ -1023,14 +1023,16 @@ L10nMV.AssetExists = function(url) {
     try {
         
         L10nMV.Peeker.send();
-        L10nMV.CachedExists[url] = L10nMV.Peeker.readyState === XMLHttpRequest.DONE;
-        return L10nMV.CachedExists[url];
+        L10nMV.CachedExists[url] = L10nMV.Peeker.readyState === XMLHttpRequest.DONE &&
+                                  (L10nMV.Peeker.status === 200 || L10nMV.Peeker.status === 201);
         
     } catch (ex) {
         
         L10nMV.CachedExists[url] = false;
         return false;
     }
+    
+    return L10nMV.CachedExists[url];
 };
 
 L10nMV.GetSelectLocalAssetPath = function(path) {
