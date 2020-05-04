@@ -724,15 +724,15 @@ ConfigManager.applyData = function(config) {
     
     var l10nMV = config.L10nMV;
     
-    if (l10nMV) {
-        
-        L10nMV.LocalLanguage = l10nMV.LocalLanguage;
+    if (!l10nMV)
+        l10nMV = config.L10nMV = L10nMV.GetCurrentConfigurableData();
     
-        if (!(L10nMV.LocalLanguage in L10nMV.ISO639_1Names))
-            L10nMV.LocalLanguage = L10nMV.GlobalLanguage;
-        
-        L10nMV.IsProjectLanguage = L10nMV.LocalLanguage === L10nMV.ProjectLanguage;
-    }
+    L10nMV.LocalLanguage = l10nMV.LocalLanguage;
+    
+    if (!(L10nMV.LocalLanguage in L10nMV.ISO639_1Names))
+        L10nMV.LocalLanguage = L10nMV.GlobalLanguage;
+    
+    L10nMV.IsProjectLanguage = L10nMV.LocalLanguage === L10nMV.ProjectLanguage;
 };
 
 L10nMV.ConfigManager_makeData = ConfigManager.makeData;
