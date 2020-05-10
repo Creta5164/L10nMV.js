@@ -13,6 +13,7 @@
  * | Created by Creta Park (https://creft.me/cretapark)               |
  * | License : MIT                                                    |
  * | GitHub page : https://github.com/Creta5164/L10nMV.js             |
+ * | Recommanded MV version : 1.6.2^                                  |
  * |                                                                  |
  * | Step to exporting language pack template :                       |
  * | 0. Finish your game after completing the inspection of your game |

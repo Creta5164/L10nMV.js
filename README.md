@@ -10,6 +10,8 @@ Created by Creta Park (https://creft.me/cretapark)
 
 This plugin is free for use, just leave my name in your game's credits!
 
+*Currently recommanded MV version is `1.6.2`.*
+
 ---
 
 ## Update from old version guide
