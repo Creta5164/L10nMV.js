@@ -186,6 +186,7 @@ L10nMV.PEEK_FILE = "/Info.json";
 
 //Array
 L10nMV.AvailableLanguages = null;
+L10nMV.DatabaseStringsLoadStatus = null;
 
 //String
 L10nMV.ProjectLanguage = null;
@@ -197,13 +198,19 @@ L10nMV.ChangedLanguage = null;
 L10nMV.PluginStrings = null;
 
 //Bool
-L10nMV.IsProjectLanguage = false;
-L10nMV.RequireRestart    = false;
+L10nMV.IsProjectLanguage     = false;
+L10nMV.RequireRestart        = false;
+L10nMV.MapStringsLoaded      = false;
 
 L10nMV.Initialize = function(isReload) {
     
-    DataManager.loadDatabase = L10nMV.LoadDatabase;
-    DataManager.loadDataFile = L10nMV.LoadDataFile;
+    DataManager.loadDatabase     = L10nMV.LoadDatabase;
+    DataManager.loadDataFile     = L10nMV.LoadDataFile;
+    
+    DataManager.isDatabaseLoaded = L10nMV.isDatabaseLoaded;
+    DataManager.isMapLoaded      = L10nMV.isMapLoaded;
+    
+    L10nMV.DatabaseStringsLoadStatus = [];
     
     var pluginOption = PluginManager.parameters("L10nMV");
     
@@ -340,6 +347,22 @@ L10nMV.LoadDatabase = function() {
     }
 };
 
+L10nMV.isMapLoaded = function() {
+    DataManager.checkError();
+    return !!$dataMap && L10nMV.MapStringsLoaded;
+};
+
+L10nMV.isDatabaseLoaded = function() {
+    DataManager.checkError();
+    for (var i = 0; i < DataManager._databaseFiles.length; i++) {
+        if (!window[DataManager._databaseFiles[i].name] &&
+            !(DataManager._databaseFiles[i].name in L10nMV.DatabaseStringsLoadStatus)) {
+            return false;
+        }
+    }
+    return true;
+};
+
 L10nMV.LoadDataFile = function(name, src) {
     
     var xhr = new XMLHttpRequest();
@@ -347,6 +370,12 @@ L10nMV.LoadDataFile = function(name, src) {
     
     xhr.open('GET', url);
     xhr.overrideMimeType('application/json');
+    
+    if (!L10nMV.IsProjectLanguage && name === L10nMV.NAME_DATA_MAP)
+        L10nMV.MapStringsLoaded = false;
+    
+    else
+        L10nMV.MapStringsLoaded = true;
     
     xhr.onload = function() {
         
@@ -370,8 +399,22 @@ L10nMV.LoadDataFile = function(name, src) {
 
 L10nMV.LoadL10nDataFile = function(name, src) {
     
-    var xhr = new XMLHttpRequest();
     var url = L10nMV.LANG_ROOT + L10nMV.LocalLanguage + '/' + src;
+    
+    if (!L10nMV.AssetExists(url)) {
+        
+        L10nMV.ThrowException("Language pack file '" + src + "' not exist.");
+                
+        if (name === L10nMV.NAME_DATA_MAP)
+            L10nMV.MapStringsLoaded = true;
+        
+        else
+            L10nMV.DatabaseStringsLoadStatus.push(name);
+        
+        return;
+    }
+    
+    var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
     xhr.overrideMimeType('application/json');
     
@@ -387,17 +430,21 @@ L10nMV.LoadL10nDataFile = function(name, src) {
                     
                     default:
                         
+                        L10nMV.DatabaseStringsLoadStatus.push(name);
                         L10nMV.FilterStringsFromObject(parsedData);
                         window[name] = merge(window[name], parsedData);
+        
                         break;
                         
                     case L10nMV.NAME_DATA_COMMON_EVENTS:
                         
+                        L10nMV.DatabaseStringsLoadStatus.push(name);
                         L10nMV.MergeCommonEventsData(parsedData);
                         break;
                     
                     case L10nMV.NAME_DATA_MAP:
                         
+                        L10nMV.MapStringsLoaded = true;
                         L10nMV.MergeMapEventsData(parsedData);
                         break;
                 }
@@ -407,17 +454,30 @@ L10nMV.LoadL10nDataFile = function(name, src) {
                 
             } catch (e) {
                 
+                if (name === L10nMV.NAME_DATA_MAP)
+                    L10nMV.MapStringsLoaded = true;
+                
+                else
+                    L10nMV.DatabaseStringsLoadStatus.push(name);
+                
                 L10nMV.ThrowException("Failed to parse data '" + src + "'.");
             }
         }
     };
     
+    xhr.source = name;
     xhr.onerror = L10nMV.LoadFailedL10nDataFile;
     
     xhr.send();
 };
 
 L10nMV.LoadFailedL10nDataFile = function(e) {
+    
+    if (e.currentTarget.source === L10nMV.NAME_DATA_MAP)
+        L10nMV.MapStringsLoaded = true;
+    
+    else
+        L10nMV.DatabaseStringsLoadStatus.push(e.currentTarget.source);
     
     L10nMV.ThrowException("Failed to load language pack file.");
 };
@@ -806,13 +866,6 @@ L10nMV.RestartGame = function(sender) {
     L10nMV.RequireRestart = false;
     sender.fadeOutAll();
     setTimeout(function() { window.location.reload(); }, 1000);
-};
-
-//L10nMV.SceneBase_terminate = Scene_Base.prototype.terminate;
-Scene_Base.prototype.terminate = function() {
-    
-    L10nMV.LastScene = this.constructor;
-    //L10nMV.SceneBase_terminate.call(this);
 };
 
 L10nMV.Scene_Options_terminate = Scene_Options.prototype.terminate;
