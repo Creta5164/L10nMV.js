@@ -132,6 +132,7 @@ L10nMVEditor.CreateTemplate = function() {
         L10nMVEditor.CreateTemplateMapEventsString(L10nMVEditor.ExportedObjects);
         
         L10nMVEditor.CreatePeekerFile();
+        L10nMVEditor.CreateUnofficialTransitionGuideFile();
         
     } catch (e) {
         
@@ -335,6 +336,23 @@ L10nMVEditor.CreatePeekerFile = function() {
             version: L10nMVEditor.VERSION,
             hash: L10nMVEditor.COMMIT_HASH
         })
+    );
+};
+
+L10nMVEditor.CreateUnofficialTransitionGuideFile = function() {
+    
+    L10nMVEditor.IOFile.writeFileSync(
+        L10nMVEditor.LANG_DIR + "/README.txt",
+        "Hi, there.\n" +
+        "I'm Creta Park, creator of L10nMV.js.\n" +
+        "\n" +
+        "This game is using L10nMV.js, it's featuring able text localization and replacing audio and images without modifying game files!\n" +
+        "\n" +
+        "Of course, you can also make your own localized language pack.\n" +
+        "If not, there was no reason to open this file... right?\n" +
+        "\n" +
+        "You can read more guide at L10nMV.js's GitHub page : \n" +
+        "https://github.com/Creta5164/L10nMV.js"
     );
 };
 

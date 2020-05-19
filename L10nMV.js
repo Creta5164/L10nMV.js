@@ -118,11 +118,19 @@
  * |                                                                  |
  * | Default language                                                 |
  * | > Default language you've written in your project.               |
- * | > Must be use ISO 639-1 code. (i.e. ko, en...)                   |
+ * | > Must be use ISO 639-1 code. (i.e. ko, en, ja...)               |
  * |                                                                  |
  * | Global language                                                  |
  * | > This is fallbacks if player uses not supported language.       |
- * | > Must be use ISO 639-1 code. (i.e. ko, en...)                   |
+ * | > Must be use ISO 639-1 code. (i.e. ko, en, ja...)               |
+ * |                                                                  |
+ * | Specified supported language pack list                           |
+ * | > * Strongly recommanded for Web, Mobile, UWP environment.       |
+ * | > This list is used when limited modding environment.            |
+ * | > (Unofficial translation is cannot try on Web and Mobile)       |
+ * | > If you hosting your game in limited environment, consider use  |
+ * | > this option.                                                   |
+ * | > Must be use ISO 639-1 code. (i.e. ko, en, ja...)               |
  * |                                                                  |
  * | Strict mode                                                      |
  * | > Basically, when L10nMV can't find same pair of language pack   |
@@ -151,6 +159,12 @@
  * @desc Read more information in help page's
  * 3. Plugin options section.
  * @default en
+ * 
+ * @param specified-languages
+ * @text Specified supported language pack list
+ * @type text[]
+ * @desc Read more information in help page's
+ * 3. Plugin options section.
  * 
  * @param strict
  * @text Strict mode
@@ -182,12 +196,13 @@ if (L10nMV.COMMIT_HASH === "-")
 L10nMV.NAME_DATA_COMMON_EVENTS = "$dataCommonEvents";
 L10nMV.NAME_DATA_MAP           = "$dataMap";
 
-L10nMV.LANG_ROOT = "lang/";
+L10nMV.LANG_ROOT = "./lang/";
 L10nMV.PEEK_FILE = "/Info.json";
 
 //Array
 L10nMV.AvailableLanguages = null;
 L10nMV.DatabaseStringsLoadStatus = null;
+L10nMV.SpecifiedLanguages = null;
 
 //String
 L10nMV.ProjectLanguage = null;
@@ -226,6 +241,15 @@ L10nMV.Initialize = function(isReload) {
     } catch (e) {
         
         L10nMV.WhitelistedPlugins = null;
+    }
+    
+    try {
+        
+        L10nMV.SpecifiedLanguages = JSON.parse(pluginOption["specified-languages"]);
+        
+    } catch (e) {
+        
+        L10nMV.SpecifiedLanguages = null;
     }
     
     if (!(L10nMV.ProjectLanguage in L10nMV.ISO639_1Names)) {
@@ -367,7 +391,7 @@ L10nMV.isDatabaseLoaded = function() {
 L10nMV.LoadDataFile = function(name, src) {
     
     var xhr = new XMLHttpRequest();
-    var url = 'data/' + src;
+    var url = './data/' + src;
     
     xhr.open('GET', url);
     xhr.overrideMimeType('application/json');
@@ -751,6 +775,18 @@ L10nMV.IsStringEvent = function(event) {
 // Handle settings ====================================
 
 L10nMV.LoadAvailableLanguagePackList = function() {
+    
+    if (L10nMV.SpecifiedLanguages !== null && L10nMV.SpecifiedLanguages.length !== 0) {
+        
+        if (!L10nMV.SpecifiedLanguages.contains(L10nMV.ProjectLanguage))
+            L10nMV.SpecifiedLanguages.push(L10nMV.ProjectLanguage);
+        
+        if (!L10nMV.SpecifiedLanguages.contains(L10nMV.GlobalLanguage))
+            L10nMV.SpecifiedLanguages.push(L10nMV.GlobalLanguage);
+        
+        L10nMV.AvailableLanguages = L10nMV.SpecifiedLanguages;
+        return;
+    }
     
     L10nMV.AvailableLanguages = [ L10nMV.ProjectLanguage ];
     for (var lang in L10nMV.ISO639_1Names) {
