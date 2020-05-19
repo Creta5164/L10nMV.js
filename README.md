@@ -121,12 +121,20 @@ Plugins that you want to localize them should be added to plugin whitelist of th
 # [3.](#Table-of-content) Plugin options
 
 ### Default language
-> Default language you've written in your project.
+> Default language you've written in your project.  
 > Must be use ISO 639-1 code. (i.e. ko, en...)
 
 ### Global language
-> This is fallbacks if player uses not supported language.
+> This is fallbacks if player uses not supported language.  
 > Must be use ISO 639-1 code. (i.e. ko, en...)
+
+### Specified supported language pack list
+> **\* Strongly recommanded for Web, Mobile, UWP environment.**  
+> This list is used when limited modding environment.  
+> (Unofficial translation is cannot try on Web and Mobile)  
+> If you hosting your game in limited environment, consider use
+> this option.  
+> Must be use ISO 639-1 code. (i.e. ko, en, ja...)
 
 ### Strict mode
 > Basically, when `L10nMV` can't find same pair of language pack
