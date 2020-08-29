@@ -143,8 +143,8 @@
  * | > you must add whitelist plugin's name into here.                |
  * |                                                                  |
  * | Ignore decrypt language pack files                               |
- * | > Basically, RPG MV is trying decrypt files in distribution.     |
- * | > this is supports replace files in language pack easily.        |
+ * | > Basically, RPG MV supports encrypt files in distribution.      |
+ * | > this option supports replace files in language pack easily.    |
  * | > but if you want presenting fully official language only-       |
  * | > then turn off this option.                                     |
  * |                                                                  |

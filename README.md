@@ -146,6 +146,12 @@ Plugins that you want to localize them should be added to plugin whitelist of th
 > `L10nMV` doesn't apply replacing every plugins parameters.  
 > You must add whitelist plugin's name into here.
 
+###  Ignore decrypt language pack files
+> Basically, RPG MV supports encrypt files in distribution.  
+> this option supports replace files in language pack easily.  
+> but if you want presenting fully official language only
+> then turn off this option.
+
 # [4.](#Table-of-content) Third-party library/sources notice
 
 - [deep-merge.js](https://gist.github.com/ahtcx/0cd94e62691f539160b32ecda18af3d6)
