@@ -142,6 +142,12 @@
  * | > L10nMV doesn't apply replacing every plugins parameters.       |
  * | > you must add whitelist plugin's name into here.                |
  * |                                                                  |
+ * | Ignore decrypt language pack files                               |
+ * | > Basically, RPG MV is trying decrypt files in distribution.     |
+ * | > this is supports replace files in language pack easily.        |
+ * | > but if you want presenting fully official language only-       |
+ * | > then turn off this option.                                     |
+ * |                                                                  |
  * | 4. Third-party library/sources notice                            |
  * |                                                                  |
  * | deep-merge.js                                                    |
@@ -177,6 +183,13 @@
  * @text Whitelisted plugins
  * @type text[]
  * @desc Add plugins name you want to replace plugins parameters.
+ * 
+ * @param ignore-decrypt-language-pack
+ * @text Ignore decrypt language pack files
+ * @type boolean
+ * @desc Read more information in help page's
+ * 3. Plugin options section.
+ * @default true
  */
 
 function L10nMV() {
@@ -214,9 +227,10 @@ L10nMV.ChangedLanguage = null;
 L10nMV.PluginStrings = null;
 
 //Bool
-L10nMV.IsProjectLanguage     = false;
-L10nMV.RequireRestart        = false;
-L10nMV.MapStringsLoaded      = false;
+L10nMV.IsProjectLanguage              = false;
+L10nMV.RequireRestart                 = false;
+L10nMV.MapStringsLoaded               = false;
+L10nMV.IgnoreDecryptLanguagePackFiles = false;
 
 L10nMV.Initialize = function(isReload) {
     
@@ -233,6 +247,7 @@ L10nMV.Initialize = function(isReload) {
     L10nMV.StrictMode         = pluginOption["strict"] === "true";
     L10nMV.ProjectLanguage    = pluginOption["lang"];
     L10nMV.GlobalLanguage     = pluginOption["global-lang"];
+    L10nMV.IgnoreDecryptLanguagePackFiles = pluginOption["ignore-decrypt-language-pack"] === "true";
     
     try {
         
@@ -1125,12 +1140,18 @@ L10nMV.AssetExists = function(url) {
     return L10nMV.CachedExists[url];
 };
 
-L10nMV.GetSelectLocalAssetPath = function(path) {
-            
+L10nMV.GetL10nAssetPath = function(path) {
+    
     var position = path.lastIndexOf('/');
-    var l10nPath = L10nMV.LANG_ROOT + L10nMV.LocalLanguage + '/'
-                 + path.substring(0, position + 1)
-                 + path.substring(position + 1);
+    
+    return l10nPath = L10nMV.LANG_ROOT + L10nMV.LocalLanguage + '/'
+                    + path.substring(0, position + 1)
+                    + path.substring(position + 1);
+};
+
+L10nMV.GetSelectLocalAssetPath = function(path) {
+    
+    var l10nPath = L10nMV.GetL10nAssetPath(path);
     
     if (L10nMV.AssetExists(l10nPath))
         return l10nPath;
@@ -1144,22 +1165,51 @@ WebAudio.prototype._load = function(url) {
     if (WebAudio._context) {
         var xhr = new XMLHttpRequest();
         
-        if(Decrypter.hasEncryptedAudio)
-            url = Decrypter.extToEncryptExt(url);
-        
-        if (!L10nMV.IsProjectLanguage)
+        if (!L10nMV.IsProjectLanguage) {
+            
             url = L10nMV.GetSelectLocalAssetPath(url);
+            
+            if (!L10nMV.IgnoreDecryptLanguagePackFiles || !url.startsWith(L10nMV.LANG_ROOT))
+                url = Decrypter.extToEncryptExt(url);
+            
+        } else if (Decrypter.hasEncryptedAudio)
+            url = Decrypter.extToEncryptExt(url);
         
         xhr.open('GET', url);
         xhr.responseType = 'arraybuffer';
         xhr.onload = function() {
             if (xhr.status < 400) {
+                xhr.isEncryptedFile = Decrypter.hasEncryptedAudio
+                    && (!L10nMV.IgnoreDecryptLanguagePackFiles || !url.startsWith(L10nMV.LANG_ROOT));
                 this._onXhrLoad(xhr);
             }
         }.bind(this);
         xhr.onerror = this._loader || function(){this._hasError = true;}.bind(this);
         xhr.send();
     }
+};
+
+/**
+ * @method _onXhrLoad
+ * @param {XMLHttpRequest} xhr
+ * @private
+ */
+WebAudio.prototype._onXhrLoad = function(xhr) {
+    var array = xhr.response;
+    if (xhr.isEncryptedFile) array = Decrypter.decryptArrayBuffer(array);//Decrypter.hasEncryptedAudio
+    this._readLoopComments(new Uint8Array(array));
+    WebAudio._context.decodeAudioData(array, function(buffer) {
+        this._buffer = buffer;
+        this._totalTime = buffer.duration;
+        if (this._loopLength > 0 && this._sampleRate > 0) {
+            this._loopStart /= this._sampleRate;
+            this._loopLength /= this._sampleRate;
+        } else {
+            this._loopStart = 0;
+            this._loopLength = this._totalTime;
+        }
+        this._onLoad();
+    }.bind(this));
 };
 
 L10nMV.Decrypter_DecryptImg = Decrypter.decryptImg;
@@ -1207,13 +1257,19 @@ Bitmap.prototype._requestImage = function(url){
 
     this._image = new Image();
     
+    var isEncryptedFile = Decrypter.hasEncryptedImages
+        && (!L10nMV.IgnoreDecryptLanguagePackFiles || !url.startsWith(L10nMV.LANG_ROOT));
+    
     if (!L10nMV.IsProjectLanguage)
         url = L10nMV.GetSelectLocalAssetPath(url);
     
+    else
+        isEncryptedFile = Decrypter.hasEncryptedImages;
+    
     this._url = url;
     this._loadingState = 'requesting';
-
-    if(!Decrypter.checkImgIgnore(url) && Decrypter.hasEncryptedImages) {
+    
+    if(!Decrypter.checkImgIgnore(url) && isEncryptedFile) {//Decrypter.hasEncryptedImages
         this._loadingState = 'decrypting';
         Decrypter.decryptImg(url, this);
     } else {
