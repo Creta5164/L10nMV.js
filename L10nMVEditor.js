@@ -341,6 +341,12 @@ L10nMVEditor.CreatePeekerFile = function() {
 
 L10nMVEditor.CreateUnofficialTransitionGuideFile = function() {
     
+    if (PluginManager.parameters("L10nMV")["ignore-decrypt-language-pack"] !== "true") {
+        
+        console.warn("🛑 L10nMVEditor : Ignored creating Readme.txt because L10nMV parameter 'Ignore decrypt language pack files' is disabled.")
+        return;
+    }
+    
     L10nMVEditor.IOFile.writeFileSync(
         L10nMVEditor.LANG_DIR + "/README.txt",
         "Hi, there.\n" +
