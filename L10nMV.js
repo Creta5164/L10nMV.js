@@ -1169,7 +1169,8 @@ WebAudio.prototype._load = function(url) {
             
             url = L10nMV.GetSelectLocalAssetPath(url);
             
-            if (!L10nMV.IgnoreDecryptLanguagePackFiles || !url.startsWith(L10nMV.LANG_ROOT))
+            if (Decrypter.hasEncryptedAudio &&
+               (!L10nMV.IgnoreDecryptLanguagePackFiles || !url.startsWith(L10nMV.LANG_ROOT)))
                 url = Decrypter.extToEncryptExt(url);
             
         } else if (Decrypter.hasEncryptedAudio)
