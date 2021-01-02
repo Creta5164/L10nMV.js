@@ -234,9 +234,6 @@ L10nMV.IgnoreDecryptLanguagePackFiles = false;
 
 L10nMV.Initialize = function(isReload) {
     
-    DataManager.loadDatabase     = L10nMV.LoadDatabase;
-    DataManager.loadDataFile     = L10nMV.LoadDataFile;
-    
     DataManager.isDatabaseLoaded = L10nMV.isDatabaseLoaded;
     DataManager.isMapLoaded      = L10nMV.isMapLoaded;
     
@@ -355,36 +352,39 @@ L10nMV.GetIsoCodeWithName = function(code) {
     return code + " (" + L10nMV.ISO639_1Names[code] + ")";
 };
 
-L10nMV.LoadDatabase = function() {
+L10nMV.DataManager_loadDatabase = DataManager.loadDatabase;
+DataManager.loadDatabase = function() {
     
-    var testMode = DataManager.isBattleTest() || DataManager.isEventTest();
-    var prefix = testMode ? "Test_" : "";
+    L10nMV.DataManager_loadDatabase.call(this);
     
-    var name, src;
+    L10nMV.MapStringsLoaded = L10nMV.IsProjectLanguage;
     
-    if (!testMode) {
-        
-        for (var i = 0; i < DataManager._databaseFiles.length; i++) {
-            
-            name = DataManager._databaseFiles[i].name;
-            src  = DataManager._databaseFiles[i].src;
-            L10nMV.LoadDataFile(name, prefix + src);
-        }
-        
-    } else {
-        
-        for (var i = 0; i < DataManager._databaseFiles.length; i++) {
-            
-            name = DataManager._databaseFiles[i].name;
-            src  = DataManager._databaseFiles[i].src;
-            L10nMV.LoadDataFile(name, prefix + src);
-        }
-        
-        if (DataManager.isEventTest())
-            L10nMV.LoadDataFile('$testEvent', prefix + 'Event.json');
-        
-        console.warn("⚠ L10nMV : Disabled cause test mode.");
+    if (L10nMV.IsProjectLanguage)
+        return;
+    
+    var test = this.isBattleTest() || this.isEventTest();
+    var prefix = test ? 'Test_' : '';
+    
+    for (var kvPair of this._databaseFiles)
+        L10nMV.LoadL10nDataFile(kvPair.name, prefix + kvPair.src);
+    
+    if (this.isEventTest()) {
+        L10nMV.LoadL10nDataFile('$testEvent', prefix + 'Event.json');
     }
+};
+
+L10nMV.DataManager_loadMapData = DataManager.loadMapData;
+DataManager.loadMapData = function(mapId) {
+    
+    L10nMV.DataManager_loadMapData.call(this, mapId);
+    
+    L10nMV.MapStringsLoaded = L10nMV.IsProjectLanguage;
+    
+    if (mapId <= 0)
+        return;
+    
+    var filename = 'Map%1.json'.format(mapId.padZero(3));
+    L10nMV.LoadL10nDataFile('$dataMap', filename);
 };
 
 L10nMV.isMapLoaded = function() {
@@ -401,40 +401,6 @@ L10nMV.isDatabaseLoaded = function() {
         }
     }
     return true;
-};
-
-L10nMV.LoadDataFile = function(name, src) {
-    
-    var xhr = new XMLHttpRequest();
-    var url = './data/' + src;
-    
-    xhr.open('GET', url);
-    xhr.overrideMimeType('application/json');
-    
-    if (!L10nMV.IsProjectLanguage && name === L10nMV.NAME_DATA_MAP)
-        L10nMV.MapStringsLoaded = false;
-    
-    else
-        L10nMV.MapStringsLoaded = true;
-    
-    xhr.onload = function() {
-        
-        if (xhr.status < 400) {
-            
-            window[name] = JSON.parse(xhr.responseText);
-            DataManager.onLoad(window[name]);
-            
-            if (!L10nMV.IsProjectLanguage)
-                L10nMV.LoadL10nDataFile(name, src);
-        }
-    };
-    
-    xhr.onerror = DataManager._mapLoader || function() {
-        DataManager._errorUrl = DataManager._errorUrl || url;
-    };
-    
-    window[name] = null;
-    xhr.send();
 };
 
 L10nMV.LoadL10nDataFile = function(name, src) {
@@ -858,8 +824,10 @@ Scene_Title.prototype.fadeSpeed = function() {
     return L10nMV.RequireRestart ? 0.01 : L10nMV.Scene_Title_fadeSpeed.call(this);
 };
 
-L10nMV.Scene_Title_createCommandWindow = Scene_Title.prototype.createCommandWindow;
-Scene_Title.prototype.createCommandWindow = function() {
+L10nMV.Scene_Title_create = Scene_Title.prototype.create;
+Scene_Title.prototype.create = function() {
+    
+    L10nMV.Scene_Title_create.call(this);
     
     if (L10nMV.RequireRestart) {
         
@@ -907,8 +875,6 @@ Scene_Title.prototype.createCommandWindow = function() {
         var scene = this;
         $gameMessage.setChoiceCallback(function() { L10nMV.RestartGame(scene); });
     }
-    else
-        L10nMV.Scene_Title_createCommandWindow.call(this);
 };
 
 L10nMV.RestartGame = function(sender) {
