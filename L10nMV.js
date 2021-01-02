@@ -380,7 +380,7 @@ DataManager.loadMapData = function(mapId) {
     
     L10nMV.MapStringsLoaded = L10nMV.IsProjectLanguage;
     
-    if (mapId <= 0)
+    if (L10nMV.MapStringsLoaded || mapId <= 0)
         return;
     
     var filename = 'Map%1.json'.format(mapId.padZero(3));
