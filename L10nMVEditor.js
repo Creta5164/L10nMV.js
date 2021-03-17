@@ -75,7 +75,7 @@ L10nMVEditor.MapData = null;
 L10nMVEditor.CommonEventData = null;
 
 L10nMVEditor.ExportedObjects = null;
-    
+
 L10nMVEditor.IOFile = require('fs');
 
 L10nMVEditor.EventCode = {

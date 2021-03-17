@@ -132,6 +132,10 @@
  * | > this option.                                                   |
  * | > Must be use ISO 639-1 code. (i.e. ko, en, ja...)               |
  * |                                                                  |
+ * | Use first setup scene                                            |
+ * | > When player start your game first time, L10nMV will show       |
+ * | > language setup dialogue.                                       |
+ * |                                                                  |
  * | Strict mode                                                      |
  * | > Basically, when L10nMV can't find same pair of language pack   |
  * | > file, then L10nMV uses default resources in your project.      |
@@ -171,6 +175,13 @@
  * @type text[]
  * @desc Read more information in help page's
  * 3. Plugin options section.
+ * 
+ * @param use-first-setup
+ * @text Use first setup scene
+ * @type boolean
+ * @desc Read more information in help page's
+ * 3. Plugin options section.
+ * @default false
  * 
  * @param strict
  * @text Strict mode
@@ -212,10 +223,13 @@ L10nMV.NAME_DATA_MAP           = "$dataMap";
 L10nMV.LANG_ROOT = "./lang/";
 L10nMV.PEEK_FILE = "/Info.json";
 
-//Array
-L10nMV.AvailableLanguages = null;
-L10nMV.DatabaseStringsLoadStatus = null;
-L10nMV.SpecifiedLanguages = null;
+//Bool
+L10nMV.IsProjectLanguage              = false;
+L10nMV.RequireRestart                 = false;
+L10nMV.MapStringsLoaded               = false;
+L10nMV.IgnoreDecryptLanguagePackFiles = false;
+L10nMV.UseFirstSetup                  = false;
+L10nMV.NeedSetup                      = false;
 
 //String
 L10nMV.ProjectLanguage = null;
@@ -223,14 +237,19 @@ L10nMV.LocalLanguage   = null;
 L10nMV.GlobalLanguage  = null;
 L10nMV.ChangedLanguage = null;
 
+//Array
+L10nMV.AvailableLanguages = null;
+L10nMV.DatabaseStringsLoadStatus = null;
+L10nMV.SpecifiedLanguages = null;
+
 //Object
 L10nMV.PluginStrings = null;
 
-//Bool
-L10nMV.IsProjectLanguage              = false;
-L10nMV.RequireRestart                 = false;
-L10nMV.MapStringsLoaded               = false;
-L10nMV.IgnoreDecryptLanguagePackFiles = false;
+if (Utils.isNwjs())
+    L10nMV.IOFile = require('fs');
+
+else
+    L10nMV.IOFile = null;
 
 L10nMV.Initialize = function(isReload) {
     
@@ -241,10 +260,11 @@ L10nMV.Initialize = function(isReload) {
     
     var pluginOption = PluginManager.parameters("L10nMV");
     
-    L10nMV.StrictMode         = pluginOption["strict"] === "true";
-    L10nMV.ProjectLanguage    = pluginOption["lang"];
-    L10nMV.GlobalLanguage     = pluginOption["global-lang"];
+    L10nMV.StrictMode                     = pluginOption["strict"] === "true";
+    L10nMV.ProjectLanguage                = pluginOption["lang"];
+    L10nMV.GlobalLanguage                 = pluginOption["global-lang"];
     L10nMV.IgnoreDecryptLanguagePackFiles = pluginOption["ignore-decrypt-language-pack"] === "true";
+    L10nMV.UseFirstSetup                  = pluginOption["use-first-setup"] === "true";
     
     try {
         
@@ -264,7 +284,7 @@ L10nMV.Initialize = function(isReload) {
         L10nMV.SpecifiedLanguages = null;
     }
     
-    if (!(L10nMV.ProjectLanguage in L10nMV.ISO639_1Names)) {
+    if (!(L10nMV.ProjectLanguage in L10nMV.Iso639_1Names)) {
         
         throw new Error(
             "Cannot find specific default language code : "
@@ -272,7 +292,7 @@ L10nMV.Initialize = function(isReload) {
         );
     }
     
-    if (!(L10nMV.GlobalLanguage in L10nMV.ISO639_1Names)) {
+    if (!(L10nMV.GlobalLanguage in L10nMV.Iso639_1Names)) {
         
         throw new Error(
             "Cannot find specific global(fallback) language code : "
@@ -300,7 +320,7 @@ L10nMV.Initialize = function(isReload) {
         if (L10nMV.CheckPluginFeature())
             L10nMV.InitializePluginLocalization();
     }
-};
+}
 
 L10nMV.CheckPluginFeature = function() {
     
@@ -345,12 +365,12 @@ L10nMV.CheckPluginFeature = function() {
     }
             
     return match;
-};
+}
 
 L10nMV.GetIsoCodeWithName = function(code) {
     
-    return code + " (" + L10nMV.ISO639_1Names[code] + ")";
-};
+    return code + " (" + L10nMV.Iso639_1Names[code] + ")";
+}
 
 L10nMV.DataManager_loadDatabase = DataManager.loadDatabase;
 DataManager.loadDatabase = function() {
@@ -371,7 +391,7 @@ DataManager.loadDatabase = function() {
     if (this.isEventTest()) {
         L10nMV.LoadL10nDataFile('$testEvent', prefix + 'Event.json');
     }
-};
+}
 
 L10nMV.DataManager_loadMapData = DataManager.loadMapData;
 DataManager.loadMapData = function(mapId) {
@@ -385,12 +405,12 @@ DataManager.loadMapData = function(mapId) {
     
     var filename = 'Map%1.json'.format(mapId.padZero(3));
     L10nMV.LoadL10nDataFile('$dataMap', filename);
-};
+}
 
 L10nMV.isMapLoaded = function() {
     DataManager.checkError();
     return !!$dataMap && L10nMV.MapStringsLoaded;
-};
+}
 
 L10nMV.isDatabaseLoaded = function() {
     DataManager.checkError();
@@ -401,7 +421,7 @@ L10nMV.isDatabaseLoaded = function() {
         }
     }
     return true;
-};
+}
 
 L10nMV.LoadL10nDataFile = function(name, src) {
     
@@ -469,13 +489,13 @@ L10nMV.LoadL10nDataFile = function(name, src) {
                 L10nMV.ThrowException("Failed to parse data '" + src + "'.");
             }
         }
-    };
+    }
     
     xhr.source = name;
     xhr.onerror = L10nMV.LoadFailedL10nDataFile;
     
     xhr.send();
-};
+}
 
 L10nMV.LoadFailedL10nDataFile = function(e) {
     
@@ -486,7 +506,7 @@ L10nMV.LoadFailedL10nDataFile = function(e) {
         L10nMV.DatabaseStringsLoadStatus.push(e.currentTarget.source);
     
     L10nMV.ThrowException("Failed to load language pack file.");
-};
+}
 
 L10nMV.FilterStringsFromObject = function(object) {
     
@@ -510,7 +530,7 @@ L10nMV.FilterStringsFromObject = function(object) {
                 continue;
         }
     }
-};
+}
 
 L10nMV.ThrowException = function(message) {
     
@@ -518,7 +538,7 @@ L10nMV.ThrowException = function(message) {
         throw new Error("⚠ L10nMV : " + message);
     
     console.warn("⚠ L10nMV : " + message);
-};
+}
 
 L10nMV.MergeCommonEventsData = function(strings) {
     
@@ -589,11 +609,11 @@ L10nMV.MergeCommonEventsData = function(strings) {
                     break;
             }
         }
-    };
+    }
     
     window[L10nMV.NAME_DATA_COMMON_EVENTS] = dataCommonEvents;
     
-};
+}
 
 L10nMV.MergeMapEventsData = function(strings) {
     
@@ -671,17 +691,17 @@ L10nMV.MergeMapEventsData = function(strings) {
                     break;
             }
         }
-    };
+    }
     
     window[L10nMV.NAME_DATA_MAP] = dataMap;
-};
+}
 
 L10nMV.ApplyStatus = {
     OK:              0,
     StringsNotValid: 1,
     EventsNotValid:  2,
     CountNotMatch:   3
-};
+}
 
 L10nMV.ApplyToEventList = function(strings, eventList) {
     
@@ -746,12 +766,12 @@ L10nMV.ApplyToEventList = function(strings, eventList) {
         return L10nMV.ApplyStatus.CountNotMatch;
     
     return L10nMV.ApplyStatus.OK;
-};
+}
 
 L10nMV.IsStringEvent = function(event) {
     
     return event.code in L10nMV.CodeEvent;
-};
+}
 
 // Handle settings ====================================
 
@@ -770,7 +790,7 @@ L10nMV.LoadAvailableLanguagePackList = function() {
     }
     
     L10nMV.AvailableLanguages = [ L10nMV.ProjectLanguage ];
-    for (var lang in L10nMV.ISO639_1Names) {
+    for (var lang in L10nMV.Iso639_1Names) {
         
         if (lang === L10nMV.ProjectLanguage)
             continue;
@@ -778,7 +798,7 @@ L10nMV.LoadAvailableLanguagePackList = function() {
         if (L10nMV.AssetExists(L10nMV.LANG_ROOT + lang + L10nMV.PEEK_FILE))
             L10nMV.AvailableLanguages.push(lang);
     }
-};
+}
 
 L10nMV.GetDeviceLanguage = function() {
     
@@ -790,39 +810,53 @@ L10nMV.GetDeviceLanguage = function() {
         language = language.substring(0, fullCodeIndecator);
     
     return language;
-};
+}
 
 L10nMV.ConfigManager_applyData = ConfigManager.applyData;
 ConfigManager.applyData = function(config) {
     
     L10nMV.ConfigManager_applyData.call(this, config);
+    L10nMV.ApplyToConfig(config);
+}
+
+L10nMV.ApplyToConfig = function(config) {
     
     var l10nMV = config.L10nMV;
     
-    if (!l10nMV)
+    if (!l10nMV) {
+        
+        if (L10nMV.UseFirstSetup)
+            L10nMV.NeedSetup = true;
+        
         l10nMV = config.L10nMV = L10nMV.GetCurrentConfigurableData();
+    }
     
     L10nMV.LocalLanguage = l10nMV.LocalLanguage;
     
-    if (!(L10nMV.LocalLanguage in L10nMV.ISO639_1Names))
+    if (!(L10nMV.LocalLanguage in L10nMV.Iso639_1Names))
         L10nMV.LocalLanguage = L10nMV.GlobalLanguage;
     
     L10nMV.IsProjectLanguage = L10nMV.LocalLanguage === L10nMV.ProjectLanguage;
-};
+}
 
 L10nMV.ConfigManager_makeData = ConfigManager.makeData;
 ConfigManager.makeData = function() {
     
     var config = L10nMV.ConfigManager_makeData.call(this);
-    config.L10nMV = L10nMV.GetCurrentConfigurableData();
+    L10nMV.CreateConfigData(config);
     
     return config;
-};
+}
+
+L10nMV.CreateConfigData = function(config) {
+    
+    config.L10nMV = L10nMV.GetCurrentConfigurableData();
+}
 
 L10nMV.Scene_Title_fadeSpeed = Scene_Title.prototype.fadeSpeed;
 Scene_Title.prototype.fadeSpeed = function() {
     return L10nMV.RequireRestart ? 0.01 : L10nMV.Scene_Title_fadeSpeed.call(this);
-};
+}
 
 L10nMV.Scene_Title_create = Scene_Title.prototype.create;
 Scene_Title.prototype.create = function() {
@@ -875,7 +909,7 @@ Scene_Title.prototype.create = function() {
         var scene = this;
         $gameMessage.setChoiceCallback(function() { L10nMV.RestartGame(scene); });
     }
-};
+}
 
 L10nMV.RestartGame = function(sender) {
     
@@ -884,7 +918,7 @@ L10nMV.RestartGame = function(sender) {
     L10nMV.RequireRestart = false;
     sender.fadeOutAll();
     setTimeout(function() { window.location.reload(); }, 1000);
-};
+}
 
 L10nMV.Scene_Options_terminate = Scene_Options.prototype.terminate;
 Scene_Options.prototype.terminate = function() {
@@ -893,14 +927,14 @@ Scene_Options.prototype.terminate = function() {
     
     if (L10nMV.LocalLanguage !== L10nMV.ChangedLanguage)
         L10nMV.RequireRestart = true;
-};
+}
 
 L10nMV.SceneBase_terminate = Scene_Base.prototype.terminate;
 Scene_Base.prototype.terminate = function() {
     
     L10nMV.LastScene = this.constructor;
     L10nMV.SceneBase_terminate.call(this);
-};
+}
 
 L10nMV.GetCurrentConfigurableData = function() {
     
@@ -911,22 +945,34 @@ L10nMV.GetCurrentConfigurableData = function() {
     
     return {
         LocalLanguage: localLanguage
-    };
-};
+    }
+}
 
 L10nMV.Window_Options_makeCommandList = Window_Options.prototype.makeCommandList;
 Window_Options.prototype.makeCommandList = function() {
     
     L10nMV.Window_Options_makeCommandList.call(this);
+    L10nMV.OptionWindow_CreateCommand(this);
+}
+
+L10nMV.OptionWindow_IsEnabled = function() {
     
-    L10nMV.ChangedLanguage = L10nMV.LocalLanguage;
+    return L10nMV.LastScene === Scene_Title;
+}
+
+L10nMV.OptionWindow_CreateCommand = function(context) {
     
-    this.addCommand(
+    if (!context._L10nMVLang) {
+        context._L10nMVLang = true;
+        L10nMV.ChangedLanguage = L10nMV.LocalLanguage;
+    }
+    
+    context.addCommand(
         L10nMV.GetOptionText(L10nMV.ChangedLanguage),
         'L10nMV.LocalLanguage',
-        L10nMV.LastScene === Scene_Title
+        L10nMV.OptionWindow_IsEnabled()
     );
-};
+}
 
 L10nMV.Window_Options_processOk = Window_Options.prototype.processOk;
 Window_Options.prototype.processOk = function() {
@@ -953,12 +999,24 @@ Window_Options.prototype.processOk = function() {
             break;    
         
         case "L10nMV.LocalLanguage":
-            L10nMV.ChangeToNextLanguage();
-            this._list[index].name = L10nMV.GetOptionText(L10nMV.ChangedLanguage);
-            this.redrawItem(index);
+            L10nMV.OptionWindow_CursorRight(this);
             break;
     }
-};
+}
+
+L10nMV.OptionWindow_CursorRight = function(context) {
+    
+    if (!L10nMV.OptionWindow_IsEnabled()) {
+        
+        SoundManager.playBuzzer();
+        return;
+    }
+    
+    var index = context.index();
+    L10nMV.ChangeToNextLanguage();
+    context._list[index].name = L10nMV.GetOptionText(L10nMV.ChangedLanguage);
+    context.redrawItem(index);
+}
 
 L10nMV.Window_Options_cursorRight = Window_Options.prototype.cursorRight;
 Window_Options.prototype.cursorRight = function(wrap) {
@@ -985,12 +1043,24 @@ Window_Options.prototype.cursorRight = function(wrap) {
             break;    
         
         case "L10nMV.LocalLanguage":
-            L10nMV.ChangeToNextLanguage();
-            this._list[index].name = L10nMV.GetOptionText(L10nMV.ChangedLanguage);
-            this.redrawItem(index);
+            L10nMV.OptionWindow_CursorRight(this);
             break;
     }
-};
+}
+
+L10nMV.OptionWindow_CursorLeft = function(context) {
+    
+    if (!L10nMV.OptionWindow_IsEnabled()) {
+        
+        SoundManager.playBuzzer();
+        return;
+    }
+    
+    var index = context.index();
+    L10nMV.ChangeToPreviousLanguage();
+    context._list[index].name = L10nMV.GetOptionText(L10nMV.ChangedLanguage);
+    context.redrawItem(index);
+}
 
 L10nMV.Window_Options_cursorLeft = Window_Options.prototype.cursorLeft;
 Window_Options.prototype.cursorLeft = function(wrap) {
@@ -1017,12 +1087,10 @@ Window_Options.prototype.cursorLeft = function(wrap) {
             break;    
         
         case "L10nMV.LocalLanguage":
-            L10nMV.ChangeToPreviousLanguage();
-            this._list[index].name = L10nMV.GetOptionText(L10nMV.ChangedLanguage);
-            this.redrawItem(index);
+            L10nMV.OptionWindow_CursorLeft(this);
             break;
     }
-};
+}
 
 L10nMV.Window_Options_statusText = Window_Options.prototype.statusText;
 Window_Options.prototype.statusText = function(index) {
@@ -1038,12 +1106,12 @@ Window_Options.prototype.statusText = function(index) {
         
         default:
             SoundManager.playBuzzer();
-            break;    
+            break;
         
         case "L10nMV.LocalLanguage":
-            return L10nMV.ISO639_1Names[L10nMV.ChangedLanguage];
+            return L10nMV.Iso639_1Names[L10nMV.ChangedLanguage];
     }
-};
+}
 
 L10nMV.ChangeToNextLanguage = function() {
     
@@ -1055,7 +1123,7 @@ L10nMV.ChangeToNextLanguage = function() {
     
     L10nMV.ChangeLanguage(L10nMV.AvailableLanguages[index]);
     SoundManager.playCursor();
-};
+}
 
 L10nMV.ChangeToPreviousLanguage = function() {
     
@@ -1067,26 +1135,29 @@ L10nMV.ChangeToPreviousLanguage = function() {
     
     L10nMV.ChangeLanguage(L10nMV.AvailableLanguages[index]);
     SoundManager.playCursor();
-};
+}
 
 L10nMV.ChangeLanguage = function(language) {
     
-    if (!(language in L10nMV.ISO639_1Names))
+    if (!(language in L10nMV.Iso639_1Names))
         language = L10nMV.GlobalLanguage;
     
     L10nMV.ChangedLanguage = language;
     
     L10nMV.IsProjectLanguage = L10nMV.ChangedLanguage === L10nMV.ProjectLanguage;
-};
+}
 
 // Handle resource files ==============================
 
-L10nMV.CachedExists = {};
+L10nMV.CachedExists = {}
 L10nMV.Peeker = new XMLHttpRequest();
 L10nMV.AssetExists = function(url) {
     
     if (url in L10nMV.CachedExists)
         return L10nMV.CachedExists[url];
+    
+    if (L10nMV.IOFile)
+        return L10nMV.IOFile.existsSync(url);
     
     L10nMV.Peeker.open("GET", url, false);
     L10nMV.Peeker.setRequestHeader("Range", "bytes=0-0");
@@ -1104,7 +1175,7 @@ L10nMV.AssetExists = function(url) {
     }
     
     return L10nMV.CachedExists[url];
-};
+}
 
 L10nMV.GetL10nAssetPath = function(path) {
     
@@ -1113,7 +1184,7 @@ L10nMV.GetL10nAssetPath = function(path) {
     return l10nPath = L10nMV.LANG_ROOT + L10nMV.LocalLanguage + '/'
                     + path.substring(0, position + 1)
                     + path.substring(position + 1);
-};
+}
 
 L10nMV.GetSelectLocalAssetPath = function(path) {
     
@@ -1123,7 +1194,7 @@ L10nMV.GetSelectLocalAssetPath = function(path) {
         return l10nPath;
     
     return path;
-};
+}
 
 L10nMV.WebAudio_Load = WebAudio.prototype._load;
 WebAudio.prototype._load = function(url) {
@@ -1154,7 +1225,7 @@ WebAudio.prototype._load = function(url) {
         xhr.onerror = this._loader || function(){this._hasError = true;}.bind(this);
         xhr.send();
     }
-};
+}
 
 /**
  * @method _onXhrLoad
@@ -1177,7 +1248,7 @@ WebAudio.prototype._onXhrLoad = function(xhr) {
         }
         this._onLoad();
     }.bind(this));
-};
+}
 
 L10nMV.Decrypter_DecryptImg = Decrypter.decryptImg;
 Decrypter.decryptImg = function(url, bitmap) {
@@ -1199,7 +1270,7 @@ Decrypter.decryptImg = function(url, bitmap) {
             bitmap._image.addEventListener('load', bitmap._loadListener = Bitmap.prototype._onLoad.bind(bitmap));
             bitmap._image.addEventListener('error', bitmap._errorListener = bitmap._loader || Bitmap.prototype._onError.bind(bitmap));
         }
-    };
+    }
 
     requestFile.onerror = function () {
         if (bitmap._loader) {
@@ -1207,8 +1278,8 @@ Decrypter.decryptImg = function(url, bitmap) {
         } else {
             bitmap._onError();
         }
-    };
-};
+    }
+}
 
 L10nMV.Bitmap_RequestImage = Bitmap.prototype._requestImage;
 Bitmap.prototype._requestImage = function(url){
@@ -1245,7 +1316,7 @@ Bitmap.prototype._requestImage = function(url){
         this._image.addEventListener('load', this._loadListener = Bitmap.prototype._onLoad.bind(this));
         this._image.addEventListener('error', this._errorListener = this._loader || Bitmap.prototype._onError.bind(this));
     }
-};
+}
 
 L10nMV.ImageManager_LoadBitmap = ImageManager.loadBitmap;
 ImageManager.loadBitmap = function(folder, filename, hue, smooth) {
@@ -1261,7 +1332,7 @@ ImageManager.loadBitmap = function(folder, filename, hue, smooth) {
     } else {
         return this.loadEmptyBitmap();
     }
-};
+}
 
 L10nMV.ImageManager_ReserveNormalBitmap = ImageManager.reserveNormalBitmap;
 ImageManager.reserveNormalBitmap = function(path, hue, reservationId){
@@ -1273,7 +1344,7 @@ ImageManager.reserveNormalBitmap = function(path, hue, reservationId){
     this._imageCache.reserve(this._generateCacheKey(path, hue), bitmap, reservationId);
 
     return bitmap;
-};
+}
 
 // Handle plugin strings ==============================
 
@@ -1317,7 +1388,7 @@ L10nMV.InitializePluginLocalization = function() {
             this.setParameters(plugin.name, plugin.parameters);
         
     }, PluginManager);
-};
+}
 
 L10nMV.PluginManager_SetParameters = PluginManager.setParameters;
 PluginManager.setParameters = function(name, parameters) {
@@ -1332,15 +1403,15 @@ PluginManager.setParameters = function(name, parameters) {
                 parameters[key] = strings[key];
                 
                 if (typeof parameters[key] === 'object')
-                    parameters[key] = L10nMV.JSONstringifyRecursively(parameters[key]);
+                    parameters[key] = L10nMV.JsonStringifyRecursively(parameters[key]);
             }
         }
     }
     
     L10nMV.PluginManager_SetParameters.call(this, name, parameters);
-};
+}
 
-L10nMV.JSONstringifyRecursively = function(object) {
+L10nMV.JsonStringifyRecursively = function(object) {
     
     if (typeof object !== 'object')
         return JSON.stringify(object);
@@ -1348,25 +1419,25 @@ L10nMV.JSONstringifyRecursively = function(object) {
     for (var key in object) {
         
         if (typeof object[key] === 'object')
-            object[key] = L10nMV.JSONstringifyRecursively(object[key]);
+            object[key] = L10nMV.JsonStringifyRecursively(object[key]);
     }
     
     return JSON.stringify(object);
-};
+}
 
 L10nMV.EventCode = {
     "Dialog": 401,
     "Choice": 102,
     "ChoiceWhen": 402,
-};
+}
 
 L10nMV.CodeEvent = {
     401: "Dialog",
     102: "Choice",
     402: "ChoiceWhen"
-};
+}
 
-L10nMV.ISO639_1Names = {
+L10nMV.Iso639_1Names = {
     "ab": "аҧсуа бызшәа, аҧсшәа",
     "aa": "Afaraf",
     "af": "Afrikaans",
@@ -1551,17 +1622,17 @@ L10nMV.ISO639_1Names = {
     "yo": "Yorùbá",
     "za": "Saɯ cueŋƅ, Saw cuengh",
     "zu": "isiZulu"
-};
+}
 
 L10nMV.GetOptionText = function(isoCode) {
     
-    if (isoCode in L10nMV.ISO639_1OptionTexts)
-        return L10nMV.ISO639_1OptionTexts[isoCode];
+    if (isoCode in L10nMV.Iso639_1OptionTexts)
+        return L10nMV.Iso639_1OptionTexts[isoCode];
     
-    return L10nMV.ISO639_1OptionTexts['en'];
-};
+    return L10nMV.Iso639_1OptionTexts['en'];
+}
 
-L10nMV.ISO639_1OptionTexts = {
+L10nMV.Iso639_1OptionTexts = {
     "af": "Taal",
     "sq": "Gjuhë",
     "am": "ቋንቋ",
@@ -1668,17 +1739,17 @@ L10nMV.ISO639_1OptionTexts = {
     "yi": "שפּראַך",
     "yo": "Language",
     "zu": "Ulimi"
-};
+}
 
 L10nMV.GetRestartMessage = function(isoCode) {
     
-    if (isoCode in L10nMV.ISO639_1RestartMessages)
-        return L10nMV.ISO639_1RestartMessages[isoCode];
+    if (isoCode in L10nMV.Iso639_1RestartMessages)
+        return L10nMV.Iso639_1RestartMessages[isoCode];
     
-    return L10nMV.ISO639_1RestartMessages['en'];
-};
+    return L10nMV.Iso639_1RestartMessages['en'];
+}
 
-L10nMV.ISO639_1RestartMessages = {
+L10nMV.Iso639_1RestartMessages = {
     "af" : "Die wedstryd sal begin word vir die veranderinge om in werking.",
     "sq" : "Loja do të riniset për ndryshimet të hyjnë në fuqi.",
     "am" : "ጨዋታው ይውሰዳት ውጤት ወደ ለውጦች ምክንያት ዳግም ይሆናል.",
@@ -1785,7 +1856,7 @@ L10nMV.ISO639_1RestartMessages = {
     "yi" : "דער שפּיל וועט זיין ריסטאַרטיד פֿאַר די ענדערונגען צו נעמען ווירקונג.",
     "yo" : "Awọn ere yoo wa ni tun fun awọn ayipada lati Ya awọn ipa.",
     "zu" : "Lo mdlalo uzobe kabusha ukuze izinguquko kuyoba nomphumela."
-};
+}
 
 // Third-party library : deep-merge.js
 // Merge a `source` object to a `target` recursively
@@ -1804,6 +1875,206 @@ Scene_Boot.prototype.create = function() {
     Scene_Base.prototype.create.call(this);
     DataManager.loadDatabase();
     this.loadSystemWindowImage();
-};
+}
 
 L10nMV.Initialize();
+
+L10nMV.SceneManager_goto = SceneManager.goto;
+SceneManager.goto = function(sceneClass) {
+    
+    if (sceneClass !== Scene_Boot && L10nMV.NeedSetup) {
+        
+        L10nMV.SceneManager_goto.call(this, Scene_LanguageSetup);
+        return;
+    }
+    
+    L10nMV.SceneManager_goto.call(this, sceneClass);
+}
+
+function Scene_LanguageSetup() {
+    this.initialize.apply(this, arguments);
+}
+
+//region Scene_LanguageSetup
+    Scene_LanguageSetup.prototype = Object.create(Scene_Base.prototype);
+    Scene_LanguageSetup.prototype.constructor = Scene_LanguageSetup;
+    
+    Scene_LanguageSetup.prototype.initialize = function() {
+        
+        Scene_Base.prototype.initialize.call(this);
+        
+        this.createWindowLayer();
+        this._window = new Window_LanguageSetup();
+        this.addWindow(this._window);
+        
+        this._window.open();
+    }
+//endregion
+
+function Window_LanguageSetup() {
+    this.initialize.apply(this, arguments);
+}
+
+//region Window_LanguageSetup
+    function Window_LanguageSetup() {
+        this.initialize.apply(this, arguments);
+    }
+    Window_LanguageSetup.prototype = Object.create(Window_Command.prototype);
+    Window_LanguageSetup.prototype.constructor = Window_LanguageSetup;
+    Window_LanguageSetup.prototype.initialize = function() {
+        
+        Window_Command.prototype.initialize.call(this, 0, 0);
+        this.updatePlacement();
+        this.openness = 0;
+        
+        this.refresh();
+        this.updateCursor();
+    }
+    
+    Window_LanguageSetup.prototype.updatePlacement = function() {
+        this.width = Graphics.boxWidth / 2;
+        this.x = Graphics.boxWidth / 2  - this.width  / 2;
+        this.y = Graphics.boxHeight / 2 - this.height / 2;
+    }
+
+    Window_LanguageSetup.prototype.itemHeight = function() {
+        return this.lineHeight();
+    }
+    
+    Window_LanguageSetup.prototype.maxItems = function() {
+        return 2;
+    }
+
+    Window_LanguageSetup.prototype.callOkHandler = function() {
+        var symbol = this.currentSymbol();
+        if (this.isHandled(symbol)) {
+            this.callHandler(symbol);
+        } else if (this.isHandled('ok')) {
+            Window_Selectable.prototype.callOkHandler.call(this);
+        } else {
+            this.activate();
+        }
+    }
+
+    Window_LanguageSetup.prototype.makeCommandList = function() {
+        
+        var localLanguage = L10nMV.GetDeviceLanguage();
+        
+        if (!L10nMV.AvailableLanguages.contains(localLanguage))
+            localLanguage = L10nMV.GlobalLanguage;
+        
+        L10nMV.ChangedLanguage = L10nMV.LocalLanguage = localLanguage;
+        
+        this.addCommand(
+            L10nMV.GetOptionText(L10nMV.ChangedLanguage),
+            'L10nMV.LocalLanguage',
+            true
+        );
+        
+        this.addCommand(
+            'OK',
+            'confirm'
+        );
+    }
+
+    Window_LanguageSetup.prototype.statusWidth = function() {
+        return 120;
+    }
+    
+    Window_LanguageSetup.prototype.drawItem = function(index) {
+        
+        if (index >= this._list.length)
+            return;
+        
+        var rect = this.itemRectForText(index);
+        var statusWidth = this.statusWidth();
+        var titleWidth = rect.width - statusWidth;
+        this.resetTextColor();
+        this.changePaintOpacity(this.isCommandEnabled(index));
+        var symbol = this.commandSymbol(index);
+        
+        switch (symbol) {
+            
+            default:
+                
+                this.drawText('< ' + this.commandName(index), rect.x, rect.y, titleWidth, 'left');
+                this.drawText(this.statusText(index) + ' >', titleWidth, rect.y, statusWidth, 'right');
+                break;
+            
+            case 'confirm':
+                this.drawText(this.commandName(index), rect.x, rect.y, rect.width, 'center');
+                break;
+        }
+    }
+    
+    Window_LanguageSetup.prototype.statusText = function(index) {
+                    
+        var symbol = this.commandSymbol(index);
+        
+        switch (symbol) {
+        
+            case "L10nMV.LocalLanguage":
+                return L10nMV.Iso639_1Names[L10nMV.ChangedLanguage];
+        }
+        
+        return '';
+    }
+    
+    Window_LanguageSetup.prototype.cursorLeft = function(wrap) {
+        var index = this.index();
+        var symbol = this.commandSymbol(index);
+        
+        switch (symbol) {
+            
+            case "L10nMV.LocalLanguage":
+                L10nMV.ChangeToPreviousLanguage();
+                this._list[index].name = L10nMV.GetOptionText(L10nMV.ChangedLanguage);
+                this.redrawItem(index);
+                break;
+        }
+    }
+    
+    Window_LanguageSetup.prototype.cursorRight = function(wrap) {
+        var index = this.index();
+        var symbol = this.commandSymbol(index);
+        
+        switch (symbol) {
+            
+            case "L10nMV.LocalLanguage":
+                L10nMV.ChangeToNextLanguage();
+                this._list[index].name = L10nMV.GetOptionText(L10nMV.ChangedLanguage);
+                this.redrawItem(index);
+                break;
+        }
+    }
+
+    Window_LanguageSetup.prototype.processOk = function() {
+        
+        var index = this.index();
+        var symbol = this.commandSymbol(index);
+        
+        switch (symbol) {
+        
+            case "L10nMV.LocalLanguage":
+                
+                L10nMV.ChangeToNextLanguage();
+                this._list[index].name = L10nMV.GetOptionText(L10nMV.ChangedLanguage);
+                this.redrawItem(index);
+                break;
+            
+            case 'confirm':
+                
+                ConfigManager.save();
+                SoundManager.playOk();
+                this.close();
+                
+                setTimeout(function() {
+                    
+                    window.location.reload();
+                }, 2000);
+                
+                break;
+        }
+    }
+    
+//endregion
