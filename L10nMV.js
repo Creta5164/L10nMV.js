@@ -816,10 +816,10 @@ L10nMV.ConfigManager_applyData = ConfigManager.applyData;
 ConfigManager.applyData = function(config) {
     
     L10nMV.ConfigManager_applyData.call(this, config);
-    L10nMV.ApplyToConfig(config);
+    L10nMV.ApplyFromConfig(config);
 }
 
-L10nMV.ApplyToConfig = function(config) {
+L10nMV.ApplyFromConfig = function(config) {
     
     var l10nMV = config.L10nMV;
     
@@ -952,7 +952,7 @@ L10nMV.Window_Options_makeCommandList = Window_Options.prototype.makeCommandList
 Window_Options.prototype.makeCommandList = function() {
     
     L10nMV.Window_Options_makeCommandList.call(this);
-    L10nMV.OptionWindow_CreateCommand(this);
+    L10nMV.OptionWindow_Create(this);
 }
 
 L10nMV.OptionWindow_IsEnabled = function() {
@@ -960,7 +960,7 @@ L10nMV.OptionWindow_IsEnabled = function() {
     return L10nMV.LastScene === Scene_Title;
 }
 
-L10nMV.OptionWindow_CreateCommand = function(context) {
+L10nMV.OptionWindow_Create = function(context) {
     
     if (!context._L10nMVLang) {
         context._L10nMVLang = true;
@@ -1902,13 +1902,22 @@ function Scene_LanguageSetup() {
     Scene_LanguageSetup.prototype.initialize = function() {
         
         Scene_Base.prototype.initialize.call(this);
-        
+        DataManager.setupNewGame();
         this.createWindowLayer();
+    }
+    
+    Scene_LanguageSetup.prototype.createWindowLayer = function() {
+        
+        Scene_Base.prototype.createWindowLayer.call(this);
+        
         this._window = new Window_LanguageSetup();
         this.addWindow(this._window);
-        
         this._window.open();
     }
+    
+    Scene_LanguageSetup.prototype.isReady = function() {
+        return $gameSystem !== null && Scene_Base.prototype.isReady.call(this);
+    };
 //endregion
 
 function Window_LanguageSetup() {
@@ -1933,6 +1942,9 @@ function Window_LanguageSetup() {
     
     Window_LanguageSetup.prototype.updatePlacement = function() {
         this.width = Graphics.boxWidth / 2;
+        if (this.width > 480)
+            this.width = 480;
+        
         this.x = Graphics.boxWidth / 2  - this.width  / 2;
         this.y = Graphics.boxHeight / 2 - this.height / 2;
     }

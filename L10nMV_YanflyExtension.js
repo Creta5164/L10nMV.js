@@ -31,7 +31,7 @@
  * | 5. Create new option.                                            |
  * | 6. Setting up like below :                                       |
  * | ---------------------------------------------------------------- |
- * | Name : Language                                                  |
+ * | Name : \i[4]{name}                                               |
  * | [-] ---Settings---                                               |
  * | Help Description : (Write description in project's language)     |
  * |           Symbol : L10nMV.LocalLanguage                          |
@@ -39,14 +39,14 @@
  * |           Enable : enabled = true;                               |
  * |              Ext : ext = 0;                                      |
  * | [-] ---Functions---                                              |
- * |    Make Option Code : L10nMV.OptionWindow_CreateCommand(this);   |
+ * |    Make Option Code : L10nMV.OptionWindow_Create(this, name);    |
  * |    Draw Option Code : L10nMV.YanflyExt_DrawContent(this, index); |
  * |     Process OK Code : L10nMV.OptionWindow_CursorRight(this);     |
  * |   Cursor Right Code : L10nMV.OptionWindow_CursorRight(this);     |
  * |    Cursor Left Code : L10nMV.OptionWindow_CursorLeft(this);      |
  * | Default Config Code :                                            |
  * |    Save Config Code : L10nMV.CreateConfigData(config);           |
- * |    Load Config Code : L10nMV.ApplyToConfig(config);              |
+ * |    Load Config Code : L10nMV.ApplyFromConfig(config);            |
  * | ---------------------------------------------------------------- |
  * |                                                                  |
  */
@@ -56,24 +56,32 @@ if (typeof(L10nMV) === undefined)
 
 (function() {
     
+    var nameTemplate;
+    
+    var OptionWindow_Create = L10nMV.OptionWindow_Create;
+    L10nMV.OptionWindow_Create = function(context, name) {
+        
+        nameTemplate = name || '\\i[4]{name}';
+        OptionWindow_Create.call(this, context);
+    }
+    
     L10nMV.YanflyExt_DrawContent = function(context, index) {
         
         var rect = context.itemRectForText(index);
 
         context.resetTextColor();
         context.changePaintOpacity(L10nMV.OptionWindow_IsEnabled());
-
+        
         context.drawTextEx(
-            L10nMV.GetOptionText(L10nMV.ChangedLanguage),
-            rect.x,
-            rect.y
+            nameTemplate.replace('{name}', L10nMV.GetOptionText(L10nMV.ChangedLanguage)),
+            rect.x, rect.y
         );
-
+        
         context.drawText(
             L10nMV.Iso639_1Names[L10nMV.ChangedLanguage],
             rect.width - context.statusWidth(),
             rect.y,
-            rect.width / 2,
+            context.statusWidth(),
             'center'
         );
     }

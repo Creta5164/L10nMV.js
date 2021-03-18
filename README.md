@@ -136,6 +136,10 @@ Plugins that you want to localize them should be added to plugin whitelist of th
 > this option.  
 > Must be use ISO 639-1 code. (i.e. ko, en, ja...)
 
+### Use first setup scene
+> When player start your game first time, L10nMV will show
+> language setup dialogue.
+
 ### Strict mode
 > Basically, when `L10nMV` can't find same pair of language pack
 > file, then `L10nMV` uses default resources in your project.  
@@ -212,7 +216,7 @@ This plugin supports `L10nMV` to use `YEP_OptionsCore` plugin.
 6. Setting up like below :
     ```
     ----------------------------------------------------------------
-    Name : Language                                                 
+    Name : \i[4]{name}                                              
     [-] ---Settings---                                              
     Help Description : (Write description in project's language)    
               Symbol : L10nMV.LocalLanguage                         
@@ -220,13 +224,13 @@ This plugin supports `L10nMV` to use `YEP_OptionsCore` plugin.
               Enable : enabled = true;                              
                  Ext : ext = 0;                                     
     [-] ---Functions---                                             
-       Make Option Code : L10nMV.OptionWindow_CreateCommand(this);  
+       Make Option Code : L10nMV.OptionWindow_Create(this, name);   
        Draw Option Code : L10nMV.YanflyExt_DrawContent(this, index);
         Process OK Code : L10nMV.OptionWindow_CursorRight(this);    
       Cursor Right Code : L10nMV.OptionWindow_CursorRight(this);    
        Cursor Left Code : L10nMV.OptionWindow_CursorLeft(this);     
     Default Config Code :                                           
        Save Config Code : L10nMV.CreateConfigData(config);          
-       Load Config Code : L10nMV.ApplyToConfig(config);             
+       Load Config Code : L10nMV.ApplyFromConfig(config);           
     ----------------------------------------------------------------
     ```
