@@ -1865,9 +1865,12 @@ function merge(target, source) {
     for (var key of Object.keys(source))
         if (source[key] instanceof Object)
             Object.assign(source[key], merge(target[key], source[key]));
+        
+        else if (source[key] !== undefined && source[key] !== null)
+            target[key] = source[key];
   
     // Join `target` and modified `source`
-    Object.assign(target || {}, source);
+    //Object.assign(target || {}, source);
     return target;
 }
 
