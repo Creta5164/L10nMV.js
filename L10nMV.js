@@ -1874,12 +1874,6 @@ function merge(target, source) {
     return target;
 }
 
-Scene_Boot.prototype.create = function() {
-    Scene_Base.prototype.create.call(this);
-    DataManager.loadDatabase();
-    this.loadSystemWindowImage();
-}
-
 L10nMV.Initialize();
 
 L10nMV.SceneManager_goto = SceneManager.goto;
