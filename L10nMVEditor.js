@@ -305,9 +305,8 @@ L10nMVEditor.CreateTemplatePluginParametersString = function(exportData) {
             lastChar  = value.charAt(value.length - 1);
             
             if ((firstChar === '{' && lastChar === '}') ||
-                (firstChar === '[' && lastChar === ']') ||
-                (firstChar === '"' && lastChar === '"'))
-                plugins[plugin.name][key] = L10nMVEditor.JSONparseRecursively(value);
+                (firstChar === '[' && lastChar === ']'))
+                plugins[plugin.name][key] = L10nMVEditor.JsonParseRecursively(value);
         }
     }
     
@@ -362,7 +361,7 @@ L10nMVEditor.CreateUnofficialTransitionGuideFile = function() {
     );
 };
 
-L10nMVEditor.JSONparseRecursively = function(string) {
+L10nMVEditor.JsonParseRecursively = function(string) {
     
     try {
         
@@ -385,9 +384,8 @@ L10nMVEditor.JSONparseRecursively = function(string) {
         lastChar  = value.charAt(value.length - 1);
         
         if ((firstChar === '{' && lastChar === '}') ||
-            (firstChar === '[' && lastChar === ']') ||
-            (firstChar === '"' && lastChar === '"'))
-            result[key] = L10nMVEditor.JSONparseRecursively(value);
+            (firstChar === '[' && lastChar === ']'))
+            result[key] = L10nMVEditor.JsonParseRecursively(value);
     }
     
     return result;
