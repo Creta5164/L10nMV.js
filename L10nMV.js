@@ -425,76 +425,83 @@ L10nMV.isDatabaseLoaded = function() {
 
 L10nMV.LoadL10nDataFile = function(name, src) {
     
-    var url = L10nMV.LANG_ROOT + L10nMV.LocalLanguage + '/' + src;
-    
-    if (!L10nMV.AssetExists(url)) {
+    var cancelToken = setInterval(function() {
         
-        L10nMV.ThrowException("Language pack file '" + src + "' not exist.");
-                
-        if (name === L10nMV.NAME_DATA_MAP)
-            L10nMV.MapStringsLoaded = true;
+        if (window[name] === null || window[name] === undefined)
+            return;
         
-        else
-            L10nMV.DatabaseStringsLoadStatus.push(name);
+        clearInterval(cancelToken);
         
-        return;
-    }
-    
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.overrideMimeType('application/json');
-    
-    xhr.onload = function() {
+        var url = L10nMV.LANG_ROOT + L10nMV.LocalLanguage + '/' + src;
         
-        if (xhr.status < 400) {
+        if (!L10nMV.AssetExists(url)) {
             
-            try {
-                
-                var parsedData = JSON.parse(xhr.responseText);
-                
-                switch (name) {
+            L10nMV.ThrowException("Language pack file '" + src + "' not exist.");
                     
-                    default:
-                        
-                        L10nMV.DatabaseStringsLoadStatus.push(name);
-                        L10nMV.FilterStringsFromObject(parsedData);
-                        window[name] = merge(window[name], parsedData);
-        
-                        break;
-                        
-                    case L10nMV.NAME_DATA_COMMON_EVENTS:
-                        
-                        L10nMV.DatabaseStringsLoadStatus.push(name);
-                        L10nMV.MergeCommonEventsData(parsedData);
-                        break;
-                    
-                    case L10nMV.NAME_DATA_MAP:
-                        
-                        L10nMV.MapStringsLoaded = true;
-                        L10nMV.MergeMapEventsData(parsedData);
-                        break;
-                }
-                
-                
-                DataManager.onLoad(window[name]);
-                
-            } catch (e) {
-                
-                if (name === L10nMV.NAME_DATA_MAP)
-                    L10nMV.MapStringsLoaded = true;
-                
-                else
-                    L10nMV.DatabaseStringsLoadStatus.push(name);
-                
-                L10nMV.ThrowException("Failed to parse data '" + src + "'.");
-            }
+            if (name === L10nMV.NAME_DATA_MAP)
+                L10nMV.MapStringsLoaded = true;
+            
+            else
+                L10nMV.DatabaseStringsLoadStatus.push(name);
+            
+            return;
         }
-    }
-    
-    xhr.source = name;
-    xhr.onerror = L10nMV.LoadFailedL10nDataFile;
-    
-    xhr.send();
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.overrideMimeType('application/json');
+        
+        xhr.onload = function() {
+            
+            if (xhr.status < 400) {
+                
+                try {
+                    
+                    var parsedData = JSON.parse(xhr.responseText);
+                    
+                    switch (name) {
+                        
+                        default:
+                            
+                            L10nMV.DatabaseStringsLoadStatus.push(name);
+                            L10nMV.FilterStringsFromObject(parsedData);
+                            window[name] = merge(window[name], parsedData);
+            
+                            break;
+                            
+                        case L10nMV.NAME_DATA_COMMON_EVENTS:
+                            
+                            L10nMV.DatabaseStringsLoadStatus.push(name);
+                            L10nMV.MergeCommonEventsData(parsedData);
+                            break;
+                        
+                        case L10nMV.NAME_DATA_MAP:
+                            
+                            L10nMV.MapStringsLoaded = true;
+                            L10nMV.MergeMapEventsData(parsedData);
+                            break;
+                    }
+                    
+                    DataManager.onLoad(window[name]);
+                    
+                } catch (e) {
+                    
+                    if (name === L10nMV.NAME_DATA_MAP)
+                        L10nMV.MapStringsLoaded = true;
+                    
+                    else
+                        L10nMV.DatabaseStringsLoadStatus.push(name);
+                    
+                    L10nMV.ThrowException("Failed to parse data '" + src + "'.");
+                }
+            }
+        };
+        
+        xhr.source = name;
+        xhr.onerror = L10nMV.LoadFailedL10nDataFile;
+        
+        xhr.send();
+    });
 }
 
 L10nMV.LoadFailedL10nDataFile = function(e) {
