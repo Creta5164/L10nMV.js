@@ -494,7 +494,7 @@ L10nMVEditor.CreateAllUsedGlyphFromPack = function(languageTarget) {
     
     if (L10nMV && L10nMV.AvailableLanguages) {
         
-        result += L10nMV.ISO639_1Names[L10nMV.GlobalLanguage];
+        result += L10nMV.Iso639_1Names[L10nMV.GlobalLanguage];
         result += L10nMV.GetOptionText(L10nMV.GlobalLanguage);
         result += L10nMV.GetRestartMessage(L10nMV.GlobalLanguage);
         
@@ -503,14 +503,14 @@ L10nMVEditor.CreateAllUsedGlyphFromPack = function(languageTarget) {
             if (lang === L10nMV.GlobalLanguage)
                 continue;
             
-            if (lang in L10nMV.ISO639_1Names)
-                result += L10nMV.ISO639_1Names[lang];
+            if (lang in L10nMV.Iso639_1Names)
+                result += L10nMV.Iso639_1Names[lang];
             
-            if (lang in L10nMV.ISO639_1OptionTexts)
-                result += L10nMV.ISO639_1OptionTexts[lang];
+            if (lang in L10nMV.Iso639_1OptionTexts)
+                result += L10nMV.Iso639_1OptionTexts[lang];
             
-            if (lang in L10nMV.ISO639_1RestartMessages)
-                result += L10nMV.ISO639_1RestartMessages[lang];
+            if (lang in L10nMV.Iso639_1RestartMessages)
+                result += L10nMV.Iso639_1RestartMessages[lang];
         }
     }
     
