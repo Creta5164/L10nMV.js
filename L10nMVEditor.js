@@ -79,10 +79,10 @@ L10nMVEditor.ExportedObjects = null;
 L10nMVEditor.IOFile = require('fs');
 
 L10nMVEditor.EventCode = {
-    "Dialog": 401,
-    "Choice": 102,
-    "ChoiceWhen": 402,
-    "ScrollText": 405
+    Dialog: 401,
+    Choice: 102,
+    ChoiceWhen: 402,
+    ScrollText: 405
 };
 
 L10nMVEditor.CodeEvent = {
