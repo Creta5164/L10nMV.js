@@ -82,12 +82,14 @@ L10nMVEditor.EventCode = {
     "Dialog": 401,
     "Choice": 102,
     "ChoiceWhen": 402,
+    "ScrollText": 405
 };
 
 L10nMVEditor.CodeEvent = {
     401: "Dialog",
     102: "Choice",
-    402: "ChoiceWhen"
+    402: "ChoiceWhen",
+    405: "ScrollText"
 };
 
 L10nMVEditor.CreateTemplate = function() {
@@ -595,6 +597,7 @@ L10nMVEditor.ExtractFromEventList = function(eventList) {
             
             case L10nMVEditor.EventCode.Dialog:
             case L10nMVEditor.EventCode.Choice:
+            case L10nMVEditor.EventCode.ScrollText:
                 
                 textData = event.parameters[0];
                 break;

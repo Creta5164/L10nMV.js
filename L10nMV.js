@@ -729,8 +729,14 @@ L10nMV.ApplyToEventList = function(strings, eventList) {
             default: continue;
             
             case L10nMV.EventCode.Dialog:
+            case L10nMV.EventCode.ScrollText:
                 
-                event.parameters[0] = strings[stringIndex];
+                if (event.parameters[0])
+                    event.parameters[0] = strings[stringIndex];
+                
+                else
+                    stringIndex--;
+                
                 break;
             
             case L10nMV.EventCode.Choice:
@@ -1433,15 +1439,17 @@ L10nMV.JsonStringifyRecursively = function(object) {
 }
 
 L10nMV.EventCode = {
-    "Dialog": 401,
-    "Choice": 102,
-    "ChoiceWhen": 402,
+    Dialog: 401,
+    Choice: 102,
+    ChoiceWhen: 402,
+    ScrollText: 405
 }
 
 L10nMV.CodeEvent = {
     401: "Dialog",
     102: "Choice",
-    402: "ChoiceWhen"
+    402: "ChoiceWhen",
+    405: "ScrollText"
 }
 
 L10nMV.Iso639_1Names = {
