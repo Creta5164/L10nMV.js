@@ -245,11 +245,19 @@ L10nMV.SpecifiedLanguages = null;
 //Object
 L10nMV.PluginStrings = null;
 
-if (Utils.isNwjs())
+if (Utils.isNwjs()) {
+    
     L10nMV.IOFile = require('fs');
+    L10nMV.IOPath = require('path');
+    L10nMV.IORoot = L10nMV.IOPath.dirname(process.mainModule.filename);
+}
 
-else
+else {
+    
     L10nMV.IOFile = null;
+    L10nMV.IOPath = null;
+    L10nMV.IORoot = null;
+}
 
 L10nMV.Initialize = function(isReload) {
     
@@ -1169,8 +1177,11 @@ L10nMV.AssetExists = function(url) {
     if (url in L10nMV.CachedExists)
         return L10nMV.CachedExists[url];
     
-    if (L10nMV.IOFile)
+    if (L10nMV.IORoot) {
+        
+        var url = L10nMV.IOPath.join(L10nMV.IORoot, url);
         return L10nMV.IOFile.existsSync(url);
+    }
     
     L10nMV.Peeker.open("GET", url, false);
     L10nMV.Peeker.setRequestHeader("Range", "bytes=0-0");
