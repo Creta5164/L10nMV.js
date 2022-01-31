@@ -1189,8 +1189,9 @@ L10nMV.AssetExists = function(url) {
     try {
         
         L10nMV.Peeker.send();
-        L10nMV.CachedExists[url] = L10nMV.Peeker.readyState === XMLHttpRequest.DONE &&
-                                  (L10nMV.Peeker.status === 200 || L10nMV.Peeker.status === 201);
+        L10nMV.CachedExists[url]
+            = L10nMV.Peeker.readyState === XMLHttpRequest.DONE
+           && Math.floor(L10nMV.Peeker.status / 100) === 2;
         
     } catch (ex) {
         
