@@ -140,7 +140,7 @@ Plugins that you want to localize them should be added to plugin whitelist of th
 > When player start your game first time, L10nMV will show
 > language setup dialogue.
 
-### Option available condition                            
+### Option available condition
 > This is used like when skipping the title scene and
 > displaying the title screen on the map.  
 > In that case, replace the content inside with...  
