@@ -1253,7 +1253,7 @@ L10nMV.ChangeLanguage = function(language) {
 // Handle resource files ==============================
 
 L10nMV.CachedExists = {}
-L10nMV.Peeker = new XMLHttpRequest();
+
 L10nMV.AssetExists = function(url) {
     
     if (url in L10nMV.CachedExists)
@@ -1265,6 +1265,7 @@ L10nMV.AssetExists = function(url) {
         return L10nMV.IOFile.existsSync(url);
     }
     
+    L10nMV.Peeker = new XMLHttpRequest();
     L10nMV.Peeker.open("GET", url, false);
     L10nMV.Peeker.setRequestHeader("Range", "bytes=0-0");
     
