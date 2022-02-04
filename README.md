@@ -140,6 +140,25 @@ Plugins that you want to localize them should be added to plugin whitelist of th
 > When player start your game first time, L10nMV will show
 > language setup dialogue.
 
+### Option available condition                            
+> This is used like when skipping the title scene and
+> displaying the title screen on the map.  
+> In that case, replace the content inside with...  
+> `$gameMap.mapId() === <Map ID of the title screen>`  
+> *Example : `$gameMap.mapId() === 33`*  
+> <br>
+> If your map is to act as a title,
+> create an empty event with `Autorun` trigger
+> and fill it with the structure below.
+> ```
+> ◆If : Script : L10nMV.RequireRestart
+>   ◆Script : L10nMV.ShowRequiresRestartMessageOnMap();
+>   ◆Loop
+>     ◆Wait : 1 frame(s)
+>     : End
+> ◆Erase Event
+> ```
+
 ### Strict mode
 > Basically, when `L10nMV` can't find same pair of language pack
 > file, then `L10nMV` uses default resources in your project.  
