@@ -183,6 +183,12 @@
  * 3. Plugin options section.
  * @default false
  * 
+ * @param option-available-condition
+ * @text Option available condition
+ * @type text
+ * @desc The conditional expression under which the setting is activated.
+ * @default L10nMV.LastScene === Scene_Title
+ * 
  * @param strict
  * @text Strict mode
  * @type boolean
@@ -273,6 +279,15 @@ L10nMV.Initialize = function(isReload) {
     L10nMV.GlobalLanguage                 = pluginOption["global-lang"];
     L10nMV.IgnoreDecryptLanguagePackFiles = pluginOption["ignore-decrypt-language-pack"] === "true";
     L10nMV.UseFirstSetup                  = pluginOption["use-first-setup"] === "true";
+    
+    try {
+        
+        L10nMV.IsOptionAvailable = eval('(function(){return ' + pluginOption["option-available-condition"] + '})');
+        
+    } catch (e) {
+        
+        L10nMV.IsOptionAvailable = eval('(function(){return L10nMV.LastScene === Scene_Title})');
+    }
     
     try {
         
@@ -932,6 +947,53 @@ Scene_Title.prototype.create = function() {
     }
 }
 
+L10nMV.ShowRequiresRestartMessageOnMap = function() {
+    
+    var scene = SceneManager._scene;
+    if (!(scene instanceof Scene_Map)) {
+        
+        L10nMV.ThrowException("L10nMV.ShowRequiresRestartMessageOnMap only works in map.");
+        return;
+    }
+    
+    var message = L10nMV.GetRestartMessage(L10nMV.ChangedLanguage);
+    var messageWindow = scene._messageWindow;
+    var width = messageWindow.contents.measureTextWidth(message);
+
+    if (width > messageWindow.width) {
+        
+        var split = (message.length / 3) * 2;
+        split = message.indexOf(' ', split);
+        
+        if (split === -1) {
+            
+            split = message.lastIndexOf(' ');
+            
+            //last fallback
+            if (split === -1)
+                split = (message.length / 3) * 2;
+        }
+        
+        var firstLine  = message.substring(0, split) + '-';
+        var secondLine = message.substring(split + 1);
+        
+        $gameMessage.add(firstLine);
+        $gameMessage.add(secondLine);
+    }
+    else
+        $gameMessage.add(message);
+
+    $gameMessage.setBackground(1);
+    $gameMessage.setPositionType(1);
+
+    $gameMessage.setChoices(['OK'], 0, 0);
+    $gameMessage.setChoiceBackground(1);
+    $gameMessage.setChoicePositionType(1);
+
+    var scene = SceneManager._scene;
+    $gameMessage.setChoiceCallback(function() { L10nMV.RestartGame(scene); });
+}
+
 L10nMV.RestartGame = function(sender) {
     
     if (!sender) return;
@@ -978,7 +1040,10 @@ Window_Options.prototype.makeCommandList = function() {
 
 L10nMV.OptionWindow_IsEnabled = function() {
     
-    return L10nMV.LastScene === Scene_Title;
+    if (typeof L10nMV.IsOptionAvailable !== 'function')
+        return L10nMV.LastScene === Scene_Title;
+    
+    return L10nMV.IsOptionAvailable();
 }
 
 L10nMV.OptionWindow_Create = function(context) {
