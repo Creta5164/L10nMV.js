@@ -1,7 +1,7 @@
 /*:
  * @plugindesc This plugin provides localization feature to RPG Maker MV.
- * Version : Release 1.4.6
- * Commit hash : 53d9174f45bd265b5e1c8444ae35bab10f7ba023
+ * Version : Development version
+ * Commit hash : -
  * @author Creta Park (https://creft.me/cretapark)
  *
  * @help
@@ -135,23 +135,6 @@
  * | Use first setup scene                                            |
  * | > When player start your game first time, L10nMV will show       |
  * | > language setup dialogue.                                       |
- * |                                                                  |
- * | Option available condition                                       |
- * | > This is used like when skipping the title scene and-           |
- * | > displaying the title screen on the map.                        |
- * | > In that case, replace the content inside with...               |
- * | > '$gameMap.mapId() === <Map ID of the title screen>'            |
- * | >                                                                |
- * | > If your map is to act as a title,                              |
- * | > create an empty event with 'Autorun' trigger-                  |
- * | > and fill it with the structure below.                          |
- * | >                                                                |
- * | > ◆If : Script : L10nMV.RequireRestart                           |
- * | >   ◆Script : L10nMV.ShowRequiresRestartMessageOnMap();          |
- * | >   ◆Loop                                                        |
- * | >     ◆Wait : 1 frame(s)                                         |
- * | >     : End                                                      |
- * | > ◆Erase Event                                                   |
  * |                                                                  |
  * | Strict mode                                                      |
  * | > Basically, when L10nMV can't find same pair of language pack   |
