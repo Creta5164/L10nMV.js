@@ -560,6 +560,9 @@ L10nMV.FilterStringsFromObject = function(object) {
     var type;
     for (var key in object) {
         
+        if (!object.hasOwnProperty(key))
+            continue;
+        
         type = typeof object[key];
         switch (type) {
             
@@ -603,6 +606,9 @@ L10nMV.MergeCommonEventsData = function(strings) {
     var pairDataEvents;
     
     for (var keyIndex in strings) {
+        
+        if (!strings.hasOwnProperty(keyIndex))
+            continue;
         
         pairStrings = strings[keyIndex];
         
@@ -683,6 +689,9 @@ L10nMV.MergeMapEventsData = function(strings) {
     
     for (var keyIndex in strings) {
         
+        if (!strings.hasOwnProperty(keyIndex))
+            continue;
+        
         eventPageStrings = strings[keyIndex];
         
         if (!(keyIndex in dataMapEvents)) {
@@ -701,6 +710,9 @@ L10nMV.MergeMapEventsData = function(strings) {
         }
         
         for (var eventPageStringIndex in eventPageStrings) {
+        
+            if (!eventPageStrings.hasOwnProperty(eventPageStringIndex))
+                continue;
                 
             if (!(eventPageStringIndex in eventDataPages)) {
                 
@@ -844,6 +856,9 @@ L10nMV.LoadAvailableLanguagePackList = function() {
     
     L10nMV.AvailableLanguages = [ L10nMV.ProjectLanguage ];
     for (var lang in L10nMV.Iso639_1Names) {
+        
+        if (!L10nMV.Iso639_1Names.hasOwnProperty(lang))
+            continue;
         
         if (lang === L10nMV.ProjectLanguage)
             continue;
@@ -1506,6 +1521,9 @@ PluginManager.setParameters = function(name, parameters) {
         var strings = L10nMV.PluginStrings[name];
         for (var key in parameters) {
             
+            if (!parameters.hasOwnProperty(key))
+                continue;
+            
             if (key in strings && strings[key]) {
                 
                 parameters[key] = strings[key];
@@ -1525,6 +1543,9 @@ L10nMV.JsonStringifyRecursively = function(object) {
         return JSON.stringify(object);
     
     for (var key in object) {
+            
+        if (!object.hasOwnProperty(key))
+            continue;
         
         if (typeof object[key] === 'object')
             object[key] = L10nMV.JsonStringifyRecursively(object[key]);
@@ -1973,7 +1994,7 @@ L10nMV.Iso639_1RestartMessages = {
 function merge(target, source) {
     // Iterate through `source` properties and if an `Object` set property to merge of `target` and `source` properties
     for (var key of Object.keys(source))
-        if (source[key] instanceof Object)
+        if (source.hasOwnProperty(key) && source[key] instanceof Object)
             Object.assign(source[key], merge(target[key], source[key]));
         
         else if (source[key] !== undefined && source[key] !== null)

@@ -301,6 +301,9 @@ L10nMVEditor.CreateTemplatePluginParametersString = function(exportData) {
         
         for (var key in plugins[plugin.name]) {
             
+            if (!plugins[plugin.name].hasOwnProperty(key))
+                continue;
+            
             value = plugins[plugin.name][key];
             
             firstChar = value.charAt(0);
@@ -380,6 +383,9 @@ L10nMVEditor.JsonParseRecursively = function(string) {
     var value, firstChar, lastChar;
     
     for (var key in result) {
+        
+        if (!result.hasOwnProperty(key))
+            continue;
         
         value = result[key];
         firstChar = value.charAt(0);
@@ -560,7 +566,7 @@ L10nMVEditor.MergeAllStrings = function(json) {
     var result = '';
     for (var key in json) {
         
-        if (!json[key])
+        if (!json.hasOwnProperty(key) || !json[key])
             continue;
         
         switch (typeof json[key]) {
@@ -630,6 +636,9 @@ L10nMVEditor.CopyStringsFromObject = function(target) {
         return target;
     
     for (var key in target) {
+        
+        if (!target.hasOwnProperty(key))
+            continue;
         
         if (L10nMVEditor.IsFilteredKeyword(key) || !L10nMVEditor.IsValidValue(target[key]))
             continue;
