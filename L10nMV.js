@@ -1325,9 +1325,9 @@ L10nMV.GetL10nAssetPath = function(path) {
     
     var position = path.lastIndexOf('/');
     
-    return l10nPath = L10nMV.LANG_ROOT + L10nMV.LocalLanguage + '/'
-                    + path.substring(0, position + 1)
-                    + path.substring(position + 1);
+    return L10nMV.LANG_ROOT + L10nMV.LocalLanguage + '/'
+         + path.substring(0, position + 1)
+         + path.substring(position + 1);
 }
 
 L10nMV.GetSelectLocalAssetPath = function(path) {
