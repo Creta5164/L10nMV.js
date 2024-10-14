@@ -13,7 +13,7 @@
  * | Created by Creta Park (https://creft.me/cretapark)               |
  * | License : MIT                                                    |
  * | GitHub page : https://github.com/Creta5164/L10nMV.js             |
- * | Recommanded MV version : 1.6.2^                                  |
+ * | Recommended MV version : 1.6.2^                                  |
  * |                                                                  |
  * | Step to exporting language pack template :                       |
  * | 0. Finish your game after completing the inspection of your game |
@@ -128,24 +128,25 @@ L10nMVEditor.CreateTemplate = function() {
         L10nMVEditor.IOFile.mkdirSync(L10nMVEditor.EXPORT_PATH);
         
         L10nMVEditor.ExportedObjects = {};
-        L10nMVEditor.CreateTemplateSystemString(L10nMVEditor.ExportedObjects);
-        L10nMVEditor.CreateTemplateCommonEventsString(L10nMVEditor.ExportedObjects);
-        L10nMVEditor.CreateTemplatePluginParametersString(L10nMVEditor.ExportedObjects);
-        L10nMVEditor.CreateTemplateMapEventsString(L10nMVEditor.ExportedObjects);
+        L10nMVEditor.CreateTemplateResourceStrings(L10nMVEditor.ExportedObjects);
+        L10nMVEditor.CreateTemplatePluginParametersStrings(L10nMVEditor.ExportedObjects);
+        L10nMVEditor.CreateTemplateSystemStrings(L10nMVEditor.ExportedObjects);
+        L10nMVEditor.CreateTemplateCommonEventsStrings(L10nMVEditor.ExportedObjects);
+        L10nMVEditor.CreateTemplateMapEventsStrings(L10nMVEditor.ExportedObjects);
         
-        L10nMVEditor.CreatePeekerFile();
+        L10nMVEditor.CreatePeckerFile();
         L10nMVEditor.CreateUnofficialTransitionGuideFile();
         
     } catch (e) {
         
-        console.error("❗ L10nMVEditor : An exception has occured while creating template files.");
+        console.error("❗ L10nMVEditor : An exception has occurred while creating template files.");
         (console.error || console.log).call(console, e.stack || e);
         return;
     }
     
     console.info(" 🌐🔧 L10nMVEditor : Creating template language pack is successfully created.");
     console.info("                    : String json files will be stored into './lang/exported'.");
-};
+}
     
 L10nMVEditor.RemoveDirectory = function(path) {
     
@@ -167,9 +168,9 @@ L10nMVEditor.RemoveDirectory = function(path) {
     while (delay-- > 0);
     
     L10nMVEditor.IOFile.rmdirSync(path);
-};
+}
 
-L10nMVEditor.CreateTemplateSystemString = function(exportData) {
+L10nMVEditor.CreateTemplateSystemStrings = function(exportData) {
     
     var data, strings, json;
     for (var pair of L10nMVEditor.SystemDataPair) {
@@ -203,11 +204,10 @@ L10nMVEditor.CreateTemplateSystemString = function(exportData) {
             pair.src.substring(0, pair.src.length - 5) +
             "' successfully exported."
         );
-        
     }
-};
+}
 
-L10nMVEditor.CreateTemplateCommonEventsString = function(exportData) {
+L10nMVEditor.CreateTemplateCommonEventsStrings = function(exportData) {
     
     var root = {};
     var data, index = 0;
@@ -250,9 +250,43 @@ L10nMVEditor.CreateTemplateCommonEventsString = function(exportData) {
     );
     
     console.info("✅ L10nMVEditor : Common events successfully exported.");
-};
+}
 
-L10nMVEditor.CreateTemplatePluginParametersString = function(exportData) {
+L10nMVEditor.CreateTemplateResourceStrings = function(exportData) {
+    
+    var pluginOption = PluginManager.parameters("L10nMV");
+    
+    var resourceStrings;
+    try {
+        
+        resourceStrings = JSON.parse(pluginOption["resource-strings"]);
+        
+        for (var index = 0; index < resourceStrings.length; index++)
+            resourceStrings[index] = JSON.parse(resourceStrings[index]);
+        
+    } catch (e) {
+        
+        resourceStrings = [];
+    }
+    
+    if (!resourceStrings) {
+        
+        console.warn("⚠ L10nMVEditor : Resource strings is empty.");
+        return;
+    }
+    
+    exportData['Strings.json'] = resourceStrings;
+    var json = JSON.stringify(resourceStrings, null, 4);
+    
+    L10nMVEditor.IOFile.writeFileSync(
+        L10nMVEditor.EXPORT_PATH + "/Strings.json",
+        json
+    );
+        
+    console.info("✅ L10nMVEditor : Resource strings successfully exported. (" + resourceStrings.length + " item(s))");
+}
+
+L10nMVEditor.CreateTemplatePluginParametersStrings = function(exportData) {
     
     var pluginOption = PluginManager.parameters("L10nMVEditor");
     
@@ -330,9 +364,9 @@ L10nMVEditor.CreateTemplatePluginParametersString = function(exportData) {
     );
         
     console.info("✅ L10nMVEditor : Plugins successfully exported.");
-};
+}
 
-L10nMVEditor.CreatePeekerFile = function() {
+L10nMVEditor.CreatePeckerFile = function() {
     
     L10nMVEditor.IOFile.writeFileSync(
         L10nMVEditor.EXPORT_PATH + "/Info.json",
@@ -341,7 +375,7 @@ L10nMVEditor.CreatePeekerFile = function() {
             hash: L10nMVEditor.COMMIT_HASH
         })
     );
-};
+}
 
 L10nMVEditor.CreateUnofficialTransitionGuideFile = function() {
     
@@ -364,7 +398,7 @@ L10nMVEditor.CreateUnofficialTransitionGuideFile = function() {
         "You can read more guide at L10nMV.js's GitHub page : \n" +
         "https://github.com/Creta5164/L10nMV.js"
     );
-};
+}
 
 L10nMVEditor.JsonParseRecursively = function(string) {
     
@@ -397,9 +431,9 @@ L10nMVEditor.JsonParseRecursively = function(string) {
     }
     
     return result;
-};
+}
 
-L10nMVEditor.CreateTemplateMapEventsString = function(exportData) {
+L10nMVEditor.CreateTemplateMapEventsStrings = function(exportData) {
     
     var files = L10nMVEditor.IOFile.readdirSync(L10nMVEditor.DATA_DIR)
         .filter((path) => L10nMVEditor.REG_MAP_FILE.test(path));
@@ -484,7 +518,7 @@ L10nMVEditor.CreateTemplateMapEventsString = function(exportData) {
             "' data successfully exported."
         );
     }
-};
+}
 
 L10nMVEditor.CreateAllUsedGlyphFromPack = function(languageTarget) {
     
@@ -559,7 +593,7 @@ L10nMVEditor.CreateAllUsedGlyphFromPack = function(languageTarget) {
         languageTarget +
         "' is successfully exported in same directory. (TextCharacters.txt)"
     );
-};
+}
 
 L10nMVEditor.MergeAllStrings = function(json) {
     
@@ -582,7 +616,7 @@ L10nMVEditor.MergeAllStrings = function(json) {
     }
     
     return result;
-};
+}
 
 L10nMVEditor.ExtractFromEventList = function(eventList) {
     
@@ -616,7 +650,7 @@ L10nMVEditor.ExtractFromEventList = function(eventList) {
     }
     
     return result;
-};
+}
 
 L10nMVEditor.CopyStringsFromObject = function(target) {
     
@@ -673,7 +707,7 @@ L10nMVEditor.CopyStringsFromObject = function(target) {
         return null;
     
     return result;
-};
+}
 
 L10nMVEditor.IsFilteredKeyword = function(key) {
     
@@ -712,7 +746,7 @@ L10nMVEditor.IsFilteredKeyword = function(key) {
         case "encryptionKey":
             return true;
     }
-};
+}
 
 L10nMVEditor.IsValidValue = function(value) {
     
@@ -722,7 +756,7 @@ L10nMVEditor.IsValidValue = function(value) {
     var type = typeof value;
     
     return type === "string" || type === "object";
-};
+}
 
 L10nMVEditor.SystemDataPair =  [
     { name: '$dataActors',       src: 'Actors.json'       },

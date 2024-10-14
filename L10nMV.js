@@ -13,12 +13,12 @@
  * | Created by Creta Park (https://creft.me/cretapark)               |
  * | License : MIT                                                    |
  * | GitHub page : https://github.com/Creta5164/L10nMV.js             |
- * | Recommanded MV version : 1.6.2^                                  |
+ * | Recommended MV version : 1.6.2^                                  |
  * |                                                                  |
  * | - Update from old version guide -------------------------------- |
  * | 1. Double-click L10nMV in plugin management menu                 |
  * | 2. Change to other plugin and restore it to L10nMV.              |
- * |    (Doesn't need re-writting plugin parameters!)                 |
+ * |    (Doesn't need re-writing plugin parameters!)                  |
  * | 3. Click 'OK' to apply and save your project.                    |
  * | 4. Run your game and check developer console                     |
  * |                                                                  |
@@ -74,7 +74,7 @@
  * | For example, if you want to replace bgm, se, and some picture... |
  * |                                                                  |
  * |    /lang                  # English version has dubbed version!  |
- * |       /en                 # Oh, and also dubbed voicelines!      |
+ * |       /en                 # Oh, and also dubbed voice lines!     |
  * | +        /audio                                                  |
  * | +           /bgm                                                 |
  * | +              /EndingSong.ogg                                   |
@@ -125,12 +125,23 @@
  * | > Must be use ISO 639-1 code. (i.e. ko, en, ja...)               |
  * |                                                                  |
  * | Specified supported language pack list                           |
- * | > * Strongly recommanded for Web, Mobile, UWP environment.       |
+ * | > * Strongly recommended for Web, Mobile, UWP environment.       |
  * | > This list is used when limited modding environment.            |
  * | > (Unofficial translation is cannot try on Web and Mobile)       |
  * | > If you hosting your game in limited environment, consider use  |
  * | > this option.                                                   |
  * | > Must be use ISO 639-1 code. (i.e. ko, en, ja...)               |
+ * |                                                                  |
+ * | Resource strings                                                 |
+ * | > You might have text in plugin commands or scripts              |
+ * | > that you want to localize.                                     |
+ * | > This option allows you to put in the text you want             |
+ * | > and have the plugin command or script use $strings(number)     |
+ * | > to get the text you put there.                                 |
+ * | > For example, check out below.                                  |
+ * | >                                                                |
+ * | > +Script : SomePluginScript.command(32, $strings(2));           |
+ * | > +Plugin command : DISPLAY_TEXT $strings(3)                     |
  * |                                                                  |
  * | Use first setup scene                                            |
  * | > When player start your game first time, L10nMV will show       |
@@ -192,6 +203,12 @@
  * @type text[]
  * @desc Read more information in help page's
  * 3. Plugin options section.
+ * 
+ * @param resource-strings
+ * @text Resource strings
+ * @type note[]
+ * @desc A collection of customized text that can be used in
+ * plugin commands, script, etc. (see 3. Plugin options)
  * 
  * @param use-first-setup
  * @text Use first setup scene
@@ -264,6 +281,7 @@ L10nMV.ChangedLanguage = null;
 L10nMV.AvailableLanguages = null;
 L10nMV.DatabaseStringsLoadStatus = null;
 L10nMV.SpecifiedLanguages = null;
+L10nMV.ResourceStrings = null;
 
 //Object
 L10nMV.PluginStrings = null;
@@ -303,7 +321,7 @@ L10nMV.Initialize = function(isReload) {
         
     } catch (e) {
         
-        L10nMV.IsOptionAvailable = eval('(function(){return L10nMV.LastScene === Scene_Title})');
+        L10nMV.IsOptionAvailable = function() { return L10nMV.LastScene === Scene_Title };
     }
     
     try {
@@ -347,13 +365,15 @@ L10nMV.Initialize = function(isReload) {
     
         console.info(
             "          🌐 L10nMV.js\n" + 
-            "         Version : " + this.VERSION + "\n" + 
+            "         Version : " + this.VERSION     + "\n" + 
             "     Commit hash : " + this.COMMIT_HASH + "\n" + 
             "Default language : " + L10nMV.GetIsoCodeWithName(this.ProjectLanguage) + "\n" + 
-            "   User language : " + L10nMV.GetIsoCodeWithName(this.LocalLanguage) + "\n" + 
+            "   User language : " + L10nMV.GetIsoCodeWithName(this.LocalLanguage)   + "\n" + 
             " Global language : " + L10nMV.GetIsoCodeWithName(this.GlobalLanguage)
         );
     }
+    
+    L10nMV.InitializeResourceStrings(pluginOption["resource-strings"]);
     
     if (!L10nMV.IsProjectLanguage) {
         
@@ -392,7 +412,7 @@ L10nMV.CheckPluginFeature = function() {
         
         console.warn(pluginFeatureDisabledMessage);
         console.warn(
-            "⚠ L10nMV : This was occured because version hash is incorrect.\n" +
+            "⚠ L10nMV : This was occurred because version hash is incorrect.\n" +
             "             So L10nMV disabled plugin feature-\n" +
             "             because not sure about this plugin is executed at first.\n" +
             "\n" +
@@ -726,6 +746,7 @@ L10nMV.MergeMapEventsData = function(strings) {
             if (!pageEvents || pageEvents.length === 0) {
                 
                 L10nMV.ThrowException("Event page strings exists but target event's page is empty. (event number " + keyIndex + ", page " + eventPageStringIndex + ")");
+                continue;
             }
             
             pageStrings = eventPageStrings[eventPageStringIndex];
@@ -872,10 +893,10 @@ L10nMV.GetDeviceLanguage = function() {
     
     var language = navigator.language || navigator.userLanguage;
     
-    var fullCodeIndecator = language.indexOf('-');
+    var fullCodeIndicator = language.indexOf('-');
     
-    if (fullCodeIndecator !== -1)
-        language = language.substring(0, fullCodeIndecator);
+    if (fullCodeIndicator !== -1)
+        language = language.substring(0, fullCodeIndicator);
     
     return language;
 }
@@ -1280,16 +1301,16 @@ L10nMV.AssetExists = function(url) {
         return L10nMV.IOFile.existsSync(url);
     }
     
-    L10nMV.Peeker = new XMLHttpRequest();
-    L10nMV.Peeker.open("GET", url, false);
-    L10nMV.Peeker.setRequestHeader("Range", "bytes=0-0");
+    L10nMV.Pecker = new XMLHttpRequest();
+    L10nMV.Pecker.open("GET", url, false);
+    L10nMV.Pecker.setRequestHeader("Range", "bytes=0-0");
     
     try {
         
-        L10nMV.Peeker.send();
+        L10nMV.Pecker.send();
         L10nMV.CachedExists[url]
-            = L10nMV.Peeker.readyState === XMLHttpRequest.DONE
-           && Math.floor(L10nMV.Peeker.status / 100) === 2;
+            = L10nMV.Pecker.readyState === XMLHttpRequest.DONE
+           && Math.floor(L10nMV.Pecker.status / 100) === 2;
         
     } catch (ex) {
         
@@ -1405,7 +1426,7 @@ Decrypter.decryptImg = function(url, bitmap) {
 }
 
 L10nMV.Bitmap_RequestImage = Bitmap.prototype._requestImage;
-Bitmap.prototype._requestImage = function(url){
+Bitmap.prototype._requestImage = function(url) {
     if(Bitmap._reuseImages.length !== 0){
         this._image = Bitmap._reuseImages.pop();
     }else{
@@ -1469,6 +1490,58 @@ ImageManager.reserveNormalBitmap = function(path, hue, reservationId){
     return bitmap;
 }
 
+L10nMV.InitializeResourceStrings = function(resourceStrings) {
+    
+    if (L10nMV.IsProjectLanguage) {
+        
+        resourceStrings = JSON.parse(resourceStrings) || [];
+        
+        if (resourceStrings.length === 0) {
+            
+            console.warn("⚠ L10nMV : No any resource strings found.");
+        }
+        
+        for (var index = 0; index < resourceStrings.length; index++)
+            resourceStrings[index] = JSON.parse(resourceStrings[index]);
+        
+        L10nMV.ResourceStrings = resourceStrings;
+        
+        return;
+    }
+    
+    var xhr = new XMLHttpRequest();
+    var url = L10nMV.LANG_ROOT + L10nMV.LocalLanguage + '/Strings.json';
+    xhr.open('GET', url, false);
+    xhr.overrideMimeType('application/json');
+    
+    xhr.onerror = L10nMV.LoadFailedL10nDataFile;
+    
+    try {
+        
+        xhr.send();
+    
+        if (xhr.status < 400) {
+        
+            resourceStrings = JSON.parse(xhr.responseText);
+        
+        } else {
+            
+            L10nMV.ThrowException("Failed to parse resource strings file. (" + url + ")");
+        }
+        
+    } catch (e) {
+            
+        L10nMV.ThrowException("Failed to load resource strings data. (" + url + ")");
+    }
+        
+    if (resourceStrings.length === 0) {
+        
+        console.warn("⚠ L10nMV : No any resource strings found.");
+    }
+    
+    L10nMV.ResourceStrings = resourceStrings;
+}
+
 // Handle plugin strings ==============================
 
 L10nMV.InitializePluginLocalization = function() {
@@ -1492,12 +1565,12 @@ L10nMV.InitializePluginLocalization = function() {
         
         } else {
             
-            L10nMV.ThrowException("Failed to parse plugins file.");
+            L10nMV.ThrowException("Failed to parse plugins file. (" + url + ")");
         }
         
     } catch (e) {
             
-        L10nMV.ThrowException("Failed to load plugins data.");
+        L10nMV.ThrowException("Failed to load plugins data. (" + url + ")");
     }
     
     if (!plugins || Object.keys(plugins).length === 0)
@@ -2006,6 +2079,46 @@ function merge(target, source) {
 }
 
 L10nMV.Initialize();
+
+L10nMV.GetResourceString = function(locNumber) {
+        
+    if (isNaN(locNumber)) {
+            
+        Graphics.printError("$strings has invalid argument.", "'" + argValue.slice(9, -1) + "' is not a number.");
+        SceneManager.stop();
+        return null;
+    }
+    
+    locNumber -= 1;
+    
+    if (locNumber < 0 || locNumber >= L10nMV.ResourceStrings.length) {
+        
+        Graphics.printError("$strings has invalid argument.", "'" + (locNumber + 1) + "' is out of range.");
+        SceneManager.stop();
+        return null;
+    }
+    
+    return L10nMV.ResourceStrings[locNumber];
+}
+
+window.$strings = L10nMV.GetResourceString;
+
+var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
+Game_Interpreter.prototype.pluginCommand = function(command, args) {
+    
+    for (var argsIndex = 0; argsIndex < args.length; argsIndex++) {
+        
+        var argValue = args[argsIndex];
+        
+        if (!argValue.toLowerCase().startsWith('$strings(') || !argValue.endsWith(')'))
+            continue;
+        
+        var locNumber = parseInt(argValue.slice(9, -1));
+        args[argsIndex] = L10nMV.GetResourceString(locNumber);
+    }
+    
+    Game_Interpreter_pluginCommand.call(this, command, args);
+}
 
 L10nMV.SceneManager_goto = SceneManager.goto;
 SceneManager.goto = function(sceneClass) {

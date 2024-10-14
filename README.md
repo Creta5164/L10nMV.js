@@ -136,6 +136,19 @@ Plugins that you want to localize them should be added to plugin whitelist of th
 > this option.  
 > Must be use ISO 639-1 code. (i.e. ko, en, ja...)
 
+### Resource strings
+> You might have text in plugin commands or scripts
+> that you want to localize.
+> This option allows you to put in the text you want
+> and have the plugin command or script use $strings(number)
+> to get the text you put there.
+> For example, check out below.
+> 
+> ```
+> ◆Script : SomePluginScript.command(32, $strings(2));
+> ◆Plugin command : DISPLAY_TEXT $strings(3)
+> ```
+
 ### Use first setup scene
 > When player start your game first time, L10nMV will show
 > language setup dialogue.
@@ -196,7 +209,7 @@ Step to exporting language pack template :
    project. This is everything of your project's text data.
 6. Change `exported` directory to localization target country
    code. (ISO 639-1)  
-   *i.e. : `ko`, `en`, `jp`, `ca`, `ru`...*
+   *i.e. : `ko`, `en`, `ja`, `zh`, `ru`...*
 7. Open the files in the folder with a text editor and edit the
    text according to localize them what do you want.
 8. If you want your game allow translate from unofficial, you leave exported language pack in your public release build for make help them translate easy way your game.
