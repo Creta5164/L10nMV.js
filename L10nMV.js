@@ -2110,6 +2110,9 @@ Game_Interpreter.prototype.pluginCommand = function(command, args) {
         
         var argValue = args[argsIndex];
         
+        if (typeof argValue !== 'string')
+            continue;
+        
         if (!argValue.toLowerCase().startsWith('$strings(') || !argValue.endsWith(')'))
             continue;
         
