@@ -1497,17 +1497,25 @@ L10nMV.InitializeResourceStrings = function(resourceStrings) {
     
     if (L10nMV.IsProjectLanguage) {
         
-        resourceStrings = JSON.parse(resourceStrings) || [];
-        
-        if (resourceStrings.length === 0) {
+        try {
             
-            console.warn("⚠ L10nMV : No any resource strings found.");
+            resourceStrings = JSON.parse(resourceStrings) || [];
+            
+            if (resourceStrings.length === 0) {
+                
+                console.warn("⚠ L10nMV : No any resource strings found.");
+            }
+            
+            for (var index = 0; index < resourceStrings.length; index++)
+                resourceStrings[index] = JSON.parse(resourceStrings[index]);
+            
+            L10nMV.ResourceStrings = resourceStrings;
+            
+        } catch (e) {
+            
+            L10nMV.ResourceStrings = [];
+            console.warn("Failed to load resource strings data.");
         }
-        
-        for (var index = 0; index < resourceStrings.length; index++)
-            resourceStrings[index] = JSON.parse(resourceStrings[index]);
-        
-        L10nMV.ResourceStrings = resourceStrings;
         
         return;
     }
@@ -1533,7 +1541,7 @@ L10nMV.InitializeResourceStrings = function(resourceStrings) {
         }
         
     } catch (e) {
-            
+        
         L10nMV.ThrowException("Failed to load resource strings data. (" + url + ")");
     }
         
@@ -1542,7 +1550,7 @@ L10nMV.InitializeResourceStrings = function(resourceStrings) {
         console.warn("⚠ L10nMV : No any resource strings found.");
     }
     
-    L10nMV.ResourceStrings = resourceStrings;
+    L10nMV.ResourceStrings = resourceStrings || [];
 }
 
 // Handle plugin strings ==============================
