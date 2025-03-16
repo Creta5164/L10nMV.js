@@ -320,6 +320,9 @@ L10nMV.Initialize = function(isReload) {
     
     try {
         
+        if (!pluginOption["option-available-condition"])
+            throw new Error();
+        
         L10nMV.IsOptionAvailable = eval('(function(){return ' + pluginOption["option-available-condition"] + '})');
         
     } catch (e) {
@@ -1499,12 +1502,10 @@ L10nMV.InitializeResourceStrings = function(resourceStrings) {
         
         try {
             
-            resourceStrings = JSON.parse(resourceStrings) || [];
+            if (!resourceStrings)
+                throw new Error();
             
-            if (resourceStrings.length === 0) {
-                
-                console.warn("⚠ L10nMV : No any resource strings found.");
-            }
+            resourceStrings = JSON.parse(resourceStrings) || [];
             
             for (var index = 0; index < resourceStrings.length; index++)
                 resourceStrings[index] = JSON.parse(resourceStrings[index]);
@@ -1513,10 +1514,17 @@ L10nMV.InitializeResourceStrings = function(resourceStrings) {
             
         } catch (e) {
             
+            console.warn("⚠ L10nMV : Failed to load resource strings data.");
+        }
+            
+        if (!resourceStrings || resourceStrings.length === 0) {
+            
             L10nMV.ResourceStrings = [];
-            console.warn("Failed to load resource strings data.");
+            console.warn("⚠ L10nMV : No any resource strings found.");
+            return;
         }
         
+        L10nMV.ResourceStrings = resourceStrings;
         return;
     }
     
@@ -1544,13 +1552,15 @@ L10nMV.InitializeResourceStrings = function(resourceStrings) {
         
         L10nMV.ThrowException("Failed to load resource strings data. (" + url + ")");
     }
+    
+    if (!resourceStrings || resourceStrings.length === 0) {
         
-    if (resourceStrings.length === 0) {
-        
+        L10nMV.ResourceStrings = [];
         console.warn("⚠ L10nMV : No any resource strings found.");
+        return;
     }
     
-    L10nMV.ResourceStrings = resourceStrings || [];
+    L10nMV.ResourceStrings = resourceStrings;
 }
 
 // Handle plugin strings ==============================
@@ -2434,7 +2444,7 @@ function Window_LanguageSetup() {
     }
     
     Window_LanguageSetup.prototype.statusText = function(index) {
-                    
+        
         var symbol = this.commandSymbol(index);
         
         switch (symbol) {
