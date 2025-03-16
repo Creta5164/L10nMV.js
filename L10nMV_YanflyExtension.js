@@ -78,7 +78,7 @@ if (typeof(L10nMV) === undefined)
         );
         
         context.drawText(
-            L10nMV.Iso639_1Names[L10nMV.ChangedLanguage],
+            L10nMV.IetfBcp47Names[L10nMV.ChangedLanguage],
             rect.width - context.statusWidth(),
             rect.y,
             context.statusWidth(),

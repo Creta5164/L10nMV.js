@@ -25,8 +25,8 @@
  * | 5. When it's done, `lang/exported` directory is created in your  |
  * |    project. This is everything of your project's text data.      |
  * | 6. Change `exported` directory to localization target country    |
- * |    code. (ISO 639-1)                                             |
- * |    i.e. : ko, en, jp, ca, ru...                                  |
+ * |    code. (IETF BCP 47)                                           |
+ * |    (i.e. ko, en, ja, zh-CN, zh-TW...)                            |
  * | 7. Open the files in the folder with a text editor and edit the  |
  * |    text according to localize them what do you want.             |
  * | 8. If you want your game allow translate from unofficial,        |
@@ -35,7 +35,7 @@
  * |                                                                  |
  * | Note. If you need make font atlas (image based font set),        |
  * |       Open developer console as same step 3, and type            |
- * |       `L10nMVEditor.CreateAllUsedGlyphFromPack("iso682-1 code")` |
+ * |       `L10nMVEditor.CreateAllUsedGlyphFromPack("ietf code")`     |
  * |       Then L10nMVEditor generates all text of language pack.     |
  * |       For example :                                              |
  * |       `L10nMVEditor.CreateAllUsedGlyphFromPack("en")`            |
@@ -43,6 +43,9 @@
  * |                                                                  |
  * |       `L10nMVEditor.CreateAllUsedGlyphFromPack("ja")`            |
  * |       -> exports texts to japanese(ja) language pack.            |
+ * |                                                                  |
+ * |       `L10nMVEditor.CreateAllUsedGlyphFromPack("zh-CH")`         |
+ * |       -> exports texts to simplified chinese language pack.      |
  * |                                                                  |
  * 
  * @param whitelist-plugins
@@ -536,7 +539,7 @@ L10nMVEditor.CreateAllUsedGlyphFromPack = function(languageTarget) {
     
     if (L10nMV && L10nMV.AvailableLanguages) {
         
-        result += L10nMV.Iso639_1Names[L10nMV.GlobalLanguage];
+        result += L10nMV.IetfBcp47Names[L10nMV.GlobalLanguage];
         result += L10nMV.GetOptionText(L10nMV.GlobalLanguage);
         result += L10nMV.GetRestartMessage(L10nMV.GlobalLanguage);
         
@@ -545,14 +548,14 @@ L10nMVEditor.CreateAllUsedGlyphFromPack = function(languageTarget) {
             if (lang === L10nMV.GlobalLanguage)
                 continue;
             
-            if (lang in L10nMV.Iso639_1Names)
-                result += L10nMV.Iso639_1Names[lang];
+            if (lang in L10nMV.IetfBcp47Names)
+                result += L10nMV.IetfBcp47Names[lang];
             
-            if (lang in L10nMV.Iso639_1OptionTexts)
-                result += L10nMV.Iso639_1OptionTexts[lang];
+            if (lang in L10nMV.IetfBcp47OptionTexts)
+                result += L10nMV.IetfBcp47OptionTexts[lang];
             
-            if (lang in L10nMV.Iso639_1RestartMessages)
-                result += L10nMV.Iso639_1RestartMessages[lang];
+            if (lang in L10nMV.IetfBcp47RestartMessages)
+                result += L10nMV.IetfBcp47RestartMessages[lang];
         }
     }
     

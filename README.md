@@ -47,8 +47,8 @@ Basically, `L10nMV` automatically links localized text from `lang` directory fil
 If player uses default-language value then `L10nMV` uses default resources in your game.
 
 If you want to support other languages must add language pack directory in `lang` directory.  
-Language pack directory name must be ISO 639-1 code.  
-(i.e. `en`, `ko`, `ja`, `es`, `ru`...)
+Language pack directory name must be IETF BCP 47 code.  
+(i.e. `en`, `ko`, `ja`, `es`, `ru`, `zh-CN`, `zh-TW`...)
 
 It's should be like this :
 
@@ -122,11 +122,11 @@ Plugins that you want to localize them should be added to plugin whitelist of th
 
 ### Default language
 > Default language you've written in your project.  
-> Must be use ISO 639-1 code. (i.e. ko, en...)
+> Must be use IETF BCP 47 code. (i.e. `ko`, `en`, `ja`, `zh-CN`, `zh-TW`...)
 
 ### Global language
 > This is fallbacks if player uses not supported language.  
-> Must be use ISO 639-1 code. (i.e. ko, en...)
+> Must be use IETF BCP 47 code. (i.e. `ko`, `en`, `ja`, `zh-CN`, `zh-TW`...)
 
 ### Specified supported language pack list
 > **\* Strongly recommanded for Web, Mobile, UWP environment.**  
@@ -134,7 +134,7 @@ Plugins that you want to localize them should be added to plugin whitelist of th
 > (Unofficial translation is cannot try on Web and Mobile)  
 > If you hosting your game in limited environment, consider use
 > this option.  
-> Must be use ISO 639-1 code. (i.e. ko, en, ja...)
+> Must be use IETF BCP 47 code. (i.e. `ko`, `en`, `ja`, `zh-CN`, `zh-TW`...)
 
 ### Resource strings
 > You might have text in plugin commands or scripts
@@ -208,13 +208,13 @@ Step to exporting language pack template :
 5. When it's done, `lang/exported` directory is created in your
    project. This is everything of your project's text data.
 6. Change `exported` directory to localization target country
-   code. (ISO 639-1)  
-   *i.e. : `ko`, `en`, `ja`, `zh`, `ru`...*
+   code. (IETF BCP 47)  
+   *i.e. : i.e. `ko`, `en`, `ja`, `zh-CN`, `zh-TW`...*
 7. Open the files in the folder with a text editor and edit the
    text according to localize them what do you want.
 8. If you want your game allow translate from unofficial, you leave exported language pack in your public release build for make help them translate easy way your game.
 
-Note. If you need make font atlas (image based font set), Open developer console as same step 3, and type `L10nMVEditor.CreateAllUsedGlyphFromPack("iso682-1 code")`.  
+Note. If you need make font atlas (image based font set), Open developer console as same step 3, and type `L10nMVEditor.CreateAllUsedGlyphFromPack("ietf code")`.  
 Then L10nMVEditor generates all text of language pack.
 
 For example :  
@@ -223,6 +223,9 @@ For example :
 
 `L10nMVEditor.CreateAllUsedGlyphFromPack("ja")`  
 -> exports texts to japanese(ja) language pack.
+
+`L10nMVEditor.CreateAllUsedGlyphFromPack("zh-CH")`  
+-> exports texts to simplified chinese(zh-CH) language pack.
 
 ---
 
